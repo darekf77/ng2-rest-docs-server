@@ -1,0 +1,32 @@
+{
+  "name": "ng2-rest-doc-server",
+  "version": "0.0.1",
+  "description": "Easy generate docs with ng2-rest plugin in angular 2 apps",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "release": "git add --all . && git commit -m\"fix\" && git push origin master && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/darekf77/ng2-rest.git"
+  },
+  "keywords": [
+    "ng2-rest",
+    "documentation",
+    "docs"
+  ],
+  "author": {
+    "name": "Dariusz Filipiak"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/darekf77/ng2-rest-docs-server/issues"
+  },
+  "homepage": "https://github.com/darekf77/ng2-rest-docs-server#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "ng2-rest": "^3.0.49"
+  }
+}
