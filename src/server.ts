@@ -8,13 +8,12 @@ import { DocModel } from './doc-model';
 var bodyParser = require('body-parser')
 
 const docsPath = `${process.cwd()}/docs/`;
-const jsonsPath = `${docsPath}/json/`;
+const jsonsPath = `${docsPath}json/`;
 const configPath = `${jsonsPath}config.json`;
 
 
 
 export const filePrefix = 'url';
-let start: boolean = false;
 let localFiles: DocModel[] = [];
 
 
@@ -47,34 +46,32 @@ export function run(port: number = 3333) {
     app.get('/start', (req, res) => {
         recreate();
         console.log('started');
+        localFiles.length = 0;
         res.status(200).send();
+
     })
 
     app.post('/save', (req, res) => {
 
-        if (start) {
-            console.log('save')
-            let body: DocModel = req.body;
-            if (!body) {
-                console.log('no body in request');
-                res.status(400).send();
-                return;
-            }
-
-            let filename = `${jsonsPath}${filePrefix}${localFiles.length}.json`
-            localFiles.push(body);
-
-            console.log('filename', filename);
-
-            fs.writeFileSync(filename, JSON.stringify(body), 'utf8');
-
-            body.fileName = filename;
-            fs.writeFileSync(configPath, JSON.stringify(localFiles), 'utf8');
-            res.status(200).send(JSON.stringify(body));
-        } else {
-            console.log('NOT save, not started')
+        console.log('save')
+        let body: DocModel = req.body;
+        if (!body) {
+            console.log('no body in request');
             res.status(400).send();
+            return;
         }
+
+        let filename = `${jsonsPath}${filePrefix}${localFiles.length}.json`
+        localFiles.push(body);
+
+        console.log('filename', filename);
+
+        fs.writeFileSync(filename, JSON.stringify(body), 'utf8');
+
+        body.fileName = filename;
+        fs.writeFileSync(configPath, JSON.stringify(localFiles), 'utf8');
+        res.status(200).send(JSON.stringify(body));
+
     })
 
 

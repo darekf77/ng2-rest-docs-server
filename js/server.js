@@ -4,10 +4,9 @@ var fs = require('fs');
 var path = require('path');
 var bodyParser = require('body-parser');
 var docsPath = process.cwd() + "/docs/";
-var jsonsPath = docsPath + "/json/";
+var jsonsPath = docsPath + "json/";
 var configPath = jsonsPath + "config.json";
 exports.filePrefix = 'url';
-var start = false;
 var localFiles = [];
 function recreate() {
     if (fs.existsSync(docsPath)) {
@@ -34,29 +33,24 @@ function run(port) {
     app.get('/start', function (req, res) {
         recreate();
         console.log('started');
+        localFiles.length = 0;
         res.status(200).send();
     });
     app.post('/save', function (req, res) {
-        if (start) {
-            console.log('save');
-            var body = req.body;
-            if (!body) {
-                console.log('no body in request');
-                res.status(400).send();
-                return;
-            }
-            var filename = "" + jsonsPath + exports.filePrefix + localFiles.length + ".json";
-            localFiles.push(body);
-            console.log('filename', filename);
-            fs.writeFileSync(filename, JSON.stringify(body), 'utf8');
-            body.fileName = filename;
-            fs.writeFileSync(configPath, JSON.stringify(localFiles), 'utf8');
-            res.status(200).send(JSON.stringify(body));
-        }
-        else {
-            console.log('NOT save, not started');
+        console.log('save');
+        var body = req.body;
+        if (!body) {
+            console.log('no body in request');
             res.status(400).send();
+            return;
         }
+        var filename = "" + jsonsPath + exports.filePrefix + localFiles.length + ".json";
+        localFiles.push(body);
+        console.log('filename', filename);
+        fs.writeFileSync(filename, JSON.stringify(body), 'utf8');
+        body.fileName = filename;
+        fs.writeFileSync(configPath, JSON.stringify(localFiles), 'utf8');
+        res.status(200).send(JSON.stringify(body));
     });
     app.listen(port, function () {
         console.log("server listending on port: " + port);

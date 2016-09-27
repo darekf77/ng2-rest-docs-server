@@ -1,1 +1,36 @@
-start page
+<div class="container">
+
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th class="name">NAME</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let file of files" (click)="selectFile(file, $event)" 
+                [ngClass]="{'active': (activeFile && activeFile === file) }">
+                <td class="url method">{{file.url}}</td>
+                <td class="name">{{file.name}}</td>
+                <div class="description" *ngIf="activeFile && activeFile === file">
+
+                    <div class="container">
+                        {{activeFile.description}}
+                        <hr>                        
+                        <div class="list-group">
+                            <a href="#" class="list-group-item"
+                             *ngFor="let ex of file.examples" >
+                                <h4 class="list-group-item-heading">
+                                    <span class="http-method-{{ex.method}} http-method" >{{ex.method}}</span>
+                                    {{ex.usecase}}
+                                </h4>
+                                <p class="list-group-item-text">{{ex.body}}</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </tr>
+        </tbody>
+    </table>
+
+</div>

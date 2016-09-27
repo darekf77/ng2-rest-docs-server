@@ -1,12 +1,12 @@
 import {StartPageComponent} from './start-page';
 import { WebpackAsyncRoute } from '@angularclass/webpack-toolkit';
-import { NoContent } from './shared/no-content';
+// import { NoContent } from './shared/no-content';
 import { RouterConfig, Router } from '@angular/router';
 
 export let routes: RouterConfig = [
     { path: '', component: StartPageComponent },
     { path: 'login', component: StartPageComponent },
-    { path: '**', component: NoContent }
+    // { path: '**', component: NoContent }
 ];
 
 
