@@ -7,9 +7,9 @@ import path = require('path');
 import { DocModel } from './doc-model';
 var bodyParser = require('body-parser')
 
-const docsPath = `${process.cwd()}/docs/`;
-const jsonsPath = `${docsPath}json/`;
-const configPath = `${jsonsPath}config.json`;
+const docsPath: string = `${process.cwd()}/docs`;
+const jsonsPath = `${docsPath}/json`;
+const configPath = `${jsonsPath}/config.json`;
 
 
 
@@ -18,13 +18,10 @@ let localFiles: DocModel[] = [];
 
 
 function recreate() {
-    if (fs.existsSync(docsPath)) {
-        console.log('path exist delete ' + docsPath);
-        deleteFolderRecursive(docsPath);
-        fs.mkdirSync(docsPath);
-        fs.mkdirSync(jsonsPath);
-        copyFolderRecursiveSync(`${__dirname}/../website/dist`, docsPath);
-    }
+    deleteFolderRecursive(docsPath);
+    fs.mkdirSync(docsPath);
+    fs.mkdirSync(jsonsPath);
+    copyFolderRecursiveSync(`${__dirname}/../website/dist`, docsPath);
     localFiles.length = 0;
 }
 
@@ -41,9 +38,9 @@ export function run(port: number = 3333) {
     let app = express();
     app.use(bodyParser.json());
 
-    app.use('/public', express.static(docsPath));
+    app.use('/', express.static(docsPath));
 
-    app.get('/start', (req, res) => {
+    app.get('/api/start', (req, res) => {
         recreate();
         console.log('started');
         localFiles.length = 0;
@@ -51,7 +48,7 @@ export function run(port: number = 3333) {
 
     })
 
-    app.post('/save', (req, res) => {
+    app.post('/api/save', (req, res) => {
 
         console.log('save')
         let body: DocModel = req.body;
@@ -61,7 +58,7 @@ export function run(port: number = 3333) {
             return;
         }
 
-        let filename = `${jsonsPath}${filePrefix}${localFiles.length}.json`
+        let filename = `${jsonsPath}/${filePrefix}${localFiles.length}.json`
         localFiles.push(body);
 
         console.log('filename', filename);
