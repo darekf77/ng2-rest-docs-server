@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest-doc-server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Easy generate docs with ng2-rest plugin in angular 2 apps",
   "main": "index.js",
   "scripts": {
