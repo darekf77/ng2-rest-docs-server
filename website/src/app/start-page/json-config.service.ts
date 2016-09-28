@@ -6,19 +6,6 @@ import { Resource } from 'ng2-rest/ng2-rest';
 import { ENDPOINTS } from '../app.component';
 
 
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
-
-export interface DocModel {
-    url: string;
-    fileName: string;
-    name: string;
-    group: string;
-    description: string;
-    usecase: string;
-    body: string;
-    method: HttpMethod;
-}
-
 @Injectable()
 export class JsonConfigService {
 

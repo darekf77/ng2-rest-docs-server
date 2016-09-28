@@ -2,9 +2,11 @@
 import express = require('express');
 import fs = require('fs');
 import path = require('path');
+import methodOverride = require('method-override');
+const cors = require('cors');
 
-// import { DocModel } from 'ng2-rest/ng2-rest';
-import { DocModel } from './doc-model';
+import { DocModel } from 'ng2-rest/ng2-rest';
+
 var bodyParser = require('body-parser')
 
 const docsPath: string = `${process.cwd()}/docs`;
@@ -36,7 +38,11 @@ export function run(port: number = 3333) {
     recreate();
 
     let app = express();
+    app.use(methodOverride());
+    app.use(cors());
+    app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
+    
 
     app.use('/', express.static(docsPath));
 

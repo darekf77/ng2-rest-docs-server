@@ -4,7 +4,6 @@ var fs = require('fs');
 var path = require('path');
 var methodOverride = require('method-override');
 var cors = require('cors');
-// import { DocModel } from 'ng2-rest/ng2-rest';
 var bodyParser = require('body-parser');
 var docsPath = process.cwd() + "/docs";
 var jsonsPath = docsPath + "/json";

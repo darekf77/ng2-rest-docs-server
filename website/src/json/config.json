@@ -13,7 +13,7 @@
         "url": "http://something/somethere/model",
         "fileName": "/Users/darek/ProjectsMac/eniro/npm_packages/ng2-rest-doc-server/docs/json/url0.json",
         "name": "Add user to base",
-        "group": "Authentication",
+        "group": "Login",
         "method": "GET",
         "description": "Get user from github",
         "usecase": "Request for something when someht",
