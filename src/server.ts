@@ -68,7 +68,7 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
             body.url = '<< undefined url >>';
         }
 
-        console.log('body.usecase', body.usecase);
+        // console.log('body.usecase', body.usecase);
         if (!body.usecase || body.usecase.trim() === '') {
             body.usecase = '<< undefined usecase >>';
         }
