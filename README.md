@@ -10,6 +10,7 @@ somewhere where your app being:
 When you are using your app and making request by ng2-rest you will be
 saving every request with his metadata to hard drive by instance of ng2-rest-docs-server
 which will generate nice docs , with descriptions of requests, use cases, like this :
+
 ![enter image description here](screen.png)
 
 To recreate your docs-server each time you for ex. running tests E2E,
