@@ -7,7 +7,7 @@ somewhere where your app begin:
 		
     Resource.setUrlToDocsServer('http://localhost:3333');
 
-When you are using your app and making request by ng2-rest you will be
+When you are using your app and making requests from ng2-rest lib, you will be
 saving every request with his metadata to hard drive by instance of ng2-rest-docs-server
 which will generate nice docs , with descriptions of requests, use cases, like this :
 
@@ -16,9 +16,6 @@ which will generate nice docs , with descriptions of requests, use cases, like t
 To recreate/clean your docs just send get request to ***&lt;your_docs_server_url&gt;/api/start***    like this :
 
     curl <your_docs_server_url>/api/start
-   or in another console use command:
-
-    ng2-rest-docs-server recreate #optionaly -p <port for docs-server>
 
 Instalation on your server:
 
