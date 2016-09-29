@@ -29,6 +29,9 @@ function recreate() {
 
 export function run(port: number = 3333, mainURL: string = 'http://localhost:3000') {
 
+    if(mainURL) {
+        console.log('Base URL form angular2 app: ', mainURL);
+    }
     // console.log('process.cwd',process.cwd())
     // console.log('__dirname',__dirname)
     // console.log('process.argv[1]',process.argv[1])
