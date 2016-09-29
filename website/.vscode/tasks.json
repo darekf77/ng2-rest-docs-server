@@ -9,7 +9,7 @@
     "tasks": [
         {
             "taskName": "hmr",
-            "args": ["run","server:dev:hmr"],
+            "args": ["run","watch:dev:hmr"],
             "isBuildCommand": true
         }
     ]

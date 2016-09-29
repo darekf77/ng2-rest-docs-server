@@ -4,6 +4,10 @@ tr {
     cursor: pointer !important;
 }
 
+code {
+    word-break: break-all;
+}
+
 .description {
     * {
         cursor: default !important;

@@ -4,7 +4,6 @@ var fs = require('fs');
 var path = require('path');
 var methodOverride = require('method-override');
 var cors = require('cors');
-// import { DocModel } from 'ng2-rest/ng2-rest';
 var bodyParser = require('body-parser');
 var docsPath = process.cwd() + "/docs";
 var jsonsPath = docsPath + "/json";
@@ -18,8 +17,9 @@ function recreate() {
     copyFolderRecursiveSync(__dirname + "/../website/dist", docsPath);
     localFiles.length = 0;
 }
-function run(port) {
+function run(port, mainURL) {
     if (port === void 0) { port = 3333; }
+    if (mainURL === void 0) { mainURL = 'http://localhost:3000'; }
     // console.log('process.cwd',process.cwd())
     // console.log('__dirname',__dirname)
     // console.log('process.argv[1]',process.argv[1])
@@ -40,12 +40,31 @@ function run(port) {
         res.status(200).send();
     });
     app.post('/api/save', function (req, res) {
-        console.log('save');
+        // console.log('save', JSON.stringify(req.body))
         var body = req.body;
         if (!body) {
             console.log('no body in request');
             res.status(400).send();
             return;
+        }
+        if (!body.url || body.url.trim() === '') {
+            body.url = '<< undefined url >>';
+        }
+        console.log('body.usecase', body.usecase);
+        if (!body.usecase || body.usecase.trim() === '') {
+            body.usecase = '<< undefined usecase >>';
+        }
+        if (!body.description || body.description.trim() === '') {
+            body.description = '<< undefined description >>';
+        }
+        if (!body.group || body.group.trim() === '') {
+            body.group = '<< undefined group >>';
+        }
+        if (!body.name || body.name.trim() === '') {
+            body.name = '<< undefined name >>';
+        }
+        if (!body.baseURL || body.baseURL.trim() === '') {
+            body.baseURL = mainURL;
         }
         var filename = jsonsPath + "/" + exports.filePrefix + localFiles.length + ".json";
         localFiles.push(body);

@@ -5,7 +5,7 @@ import path = require('path');
 import methodOverride = require('method-override');
 const cors = require('cors');
 
-import { DocModel } from 'ng2-rest/ng2-rest';
+import { DocModel } from './docs';
 
 var bodyParser = require('body-parser')
 
@@ -27,7 +27,7 @@ function recreate() {
     localFiles.length = 0;
 }
 
-export function run(port: number = 3333) {
+export function run(port: number = 3333, mainURL: string = 'http://localhost:3000') {
 
     // console.log('process.cwd',process.cwd())
     // console.log('__dirname',__dirname)
@@ -42,7 +42,7 @@ export function run(port: number = 3333) {
     app.use(cors());
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
-    
+
 
     app.use('/', express.static(docsPath));
 
@@ -56,13 +56,39 @@ export function run(port: number = 3333) {
 
     app.post('/api/save', (req, res) => {
 
-        console.log('save')
+        // console.log('save', JSON.stringify(req.body))
         let body: DocModel = req.body;
         if (!body) {
             console.log('no body in request');
             res.status(400).send();
             return;
         }
+
+        if (!body.url || body.url.trim() === '') {
+            body.url = '<< undefined url >>';
+        }
+
+        console.log('body.usecase', body.usecase);
+        if (!body.usecase || body.usecase.trim() === '') {
+            body.usecase = '<< undefined usecase >>';
+        }
+
+        if (!body.description || body.description.trim() === '') {
+            body.description = '<< undefined description >>';
+        }
+
+        if (!body.group || body.group.trim() === '') {
+            body.group = '<< undefined group >>';
+        }
+
+        if (!body.name || body.name.trim() === '') {
+            body.name = '<< undefined name >>';
+        }
+
+        if (!body.baseURL || body.baseURL.trim() === '') {
+            body.baseURL = mainURL;
+        }
+
 
         let filename = `${jsonsPath}/${filePrefix}${localFiles.length}.json`
         localFiles.push(body);
@@ -72,6 +98,7 @@ export function run(port: number = 3333) {
         fs.writeFileSync(filename, JSON.stringify(body), 'utf8');
 
         body.fileName = filename;
+
         fs.writeFileSync(configPath, JSON.stringify(localFiles), 'utf8');
         res.status(200).send(JSON.stringify(body));
 

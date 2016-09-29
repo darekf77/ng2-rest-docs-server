@@ -31,25 +31,16 @@ function mergeExamples(files: DocModel[]): DocModel[] {
     files.forEach(f => {
         let a = tmpFiles.filter(d => d.url === f.url);
         if (a.length === 0) {
-            tmpFiles.push(<DocModel>{
-                url: f.url,
-                name: f.name,
-                fileName: f.fileName,
-                description: f.description,
-                group: f.group,
-                examples: [{
-                    usecase: f.usecase,
-                    body: f.body,
-                    method: f.method
-                }]
-            });
+            let docM: DocModel = JSON.parse(JSON.stringify(f));
+            docM.examples = [];
+            docM.examples.push(JSON.parse(JSON.stringify(f)));
+            // TODO remove some shit from docM
+            tmpFiles.push(docM);
+
         } else {
             console.log('aaa', a);
-            a[0].examples.push({
-                body: f.body,
-                usecase: f.usecase,
-                method: f.method
-            });
+            a[0].examples.push(JSON.parse(JSON.stringify(f)));
+            // TODO remove some shit from a[0]
         }
     });
     return tmpFiles;
@@ -76,11 +67,16 @@ export class StartPageComponent implements OnInit, OnDestroy {
             let groups = groupFiles(files);
             groups.forEach(g => g.files = mergeExamples(g.files));
             this.groups = groups;
+            console.log('groups', groups);
         }));
     }
 
     ngOnDestroy() {
         this.handlers.forEach(h => h.unsubscribe());
+    }
+
+    cuttedUrl(file: DocModel) {
+        return file.baseURL ? file.url.replace(file.baseURL, '') : file.url;
     }
 
     lastElemem;

@@ -39,12 +39,28 @@ function run(port) {
         res.status(200).send();
     });
     app.post('/api/save', function (req, res) {
-        console.log('save');
+        console.log('save', JSON.stringify(req.body));
         var body = req.body;
         if (!body) {
             console.log('no body in request');
             res.status(400).send();
             return;
+        }
+        if (!body.url || body.url.trim() === '') {
+            body.url = '<< undefined url >>';
+        }
+        console.log('body.usecase', body.usecase);
+        if (!body.usecase || body.usecase.trim() === '') {
+            body.usecase = '<< undefined usecase >>';
+        }
+        if (!body.description || body.description.trim() === '') {
+            body.description = '<< undefined description >>';
+        }
+        if (!body.group || body.group.trim() === '') {
+            body.group = '<< undefined group >>';
+        }
+        if (!body.name || body.name.trim() === '') {
+            body.name = '<< undefined name >>';
         }
         var filename = jsonsPath + "/" + exports.filePrefix + localFiles.length + ".json";
         localFiles.push(body);
