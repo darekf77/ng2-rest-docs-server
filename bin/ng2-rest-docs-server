@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+var run = require('../js/server').run;
+
+var port;
+var baseURL;
+try {
+    if (process.argv.length >= 4) {
+        for (var i = 0; i < process.argv.length; i++) {
+            if (process.argv[i] === '-p') {
+                port = process.argv[i + 1];
+                break;
+            }
+        }
+        for (var i = 0; i < process.argv.length; i++) {
+            if (process.argv[i] === '-b') {
+                baseURL = process.argv[i + 1];
+                break;
+            }
+        }
+    }
+} catch (error) {
+    console.log(error)
+}
+run(port, baseURL);
