@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var docsPath = process.cwd() + "/docs";
 var jsonsPath = docsPath + "/json";
 var configPath = jsonsPath + "/config.json";
+var chalk = require('chalk');
 exports.filePrefix = 'url';
 var localFiles = [];
 function recreate() {
@@ -21,7 +22,7 @@ function run(port, mainURL) {
     if (port === void 0) { port = 3333; }
     if (mainURL === void 0) { mainURL = 'http://localhost:3000'; }
     if (mainURL) {
-        console.log('Base URL form angular2 app: ', mainURL);
+        console.log(chalk.green("Base URL form angular2 app: " + mainURL));
     }
     // console.log('process.cwd',process.cwd())
     // console.log('__dirname',__dirname)
@@ -46,7 +47,7 @@ function run(port, mainURL) {
         // console.log('save', JSON.stringify(req.body))
         var body = req.body;
         if (!body) {
-            console.log('no body in request');
+            console.log(chalk.gray('no body in request'));
             res.status(400).send();
             return;
         }
@@ -78,7 +79,7 @@ function run(port, mainURL) {
         res.status(200).send(JSON.stringify(body));
     });
     app.listen(port, function () {
-        console.log("server listending on port: " + port);
+        console.log(chalk.green("server listending on port: " + port));
     });
 }
 exports.run = run;

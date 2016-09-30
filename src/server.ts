@@ -13,7 +13,7 @@ const docsPath: string = `${process.cwd()}/docs`;
 const jsonsPath = `${docsPath}/json`;
 const configPath = `${jsonsPath}/config.json`;
 
-
+var chalk = require('chalk');
 
 export const filePrefix = 'url';
 let localFiles: DocModel[] = [];
@@ -29,8 +29,8 @@ function recreate() {
 
 export function run(port: number = 3333, mainURL: string = 'http://localhost:3000') {
 
-    if(mainURL) {
-        console.log('Base URL form angular2 app: ', mainURL);
+    if (mainURL) {
+        console.log(chalk.green(`Base URL form angular2 app: ${mainURL}`));
     }
     // console.log('process.cwd',process.cwd())
     // console.log('__dirname',__dirname)
@@ -62,7 +62,7 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
         // console.log('save', JSON.stringify(req.body))
         let body: DocModel = req.body;
         if (!body) {
-            console.log('no body in request');
+            console.log(chalk.gray('no body in request'));
             res.status(400).send();
             return;
         }
@@ -109,7 +109,7 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
 
 
     app.listen(port, () => {
-        console.log(`server listending on port: ${port}`);
+        console.log(chalk.green(`server listending on port: ${port}`));
     });
 }
 

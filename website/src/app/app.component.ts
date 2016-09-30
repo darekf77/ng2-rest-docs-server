@@ -37,10 +37,10 @@ require('!style!css!font-awesome/css/font-awesome.css');
   template: require('./app.component.html')
 })
 export class App {
-  angularclassLogo = 'assets/img/angularclass-avatar.png';
+  angularclassLogo = ''; //assets/img/angularclass-avatar.png';
   loading = false;
   name = 'Eniro CRM';
-  url = 'https://eniro.com';
+  url = 'https://github.com/darekf77/ng2-rest-docs-server';
 
   constructor(
     private translate: TranslateService,
