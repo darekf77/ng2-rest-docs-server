@@ -109,7 +109,7 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
 
 
     app.listen(port, () => {
-        console.log(chalk.green(`server listending on port: ${port}`));
+        console.log(chalk.green(`Server is working on http://localhost:${port}`));
     });
 }
 

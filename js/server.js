@@ -79,7 +79,7 @@ function run(port, mainURL) {
         res.status(200).send(JSON.stringify(body));
     });
     app.listen(port, function () {
-        console.log(chalk.green("server listending on port: " + port));
+        console.log(chalk.green("Server is working on http://localhost:" + port));
     });
 }
 exports.run = run;
