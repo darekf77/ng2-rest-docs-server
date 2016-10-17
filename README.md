@@ -2,20 +2,16 @@
 
 Web server for documentation generated based on metadata
 from angular2 apps with [ng2-rest](https://github.com/darekf77/ng2-rest)  v4.x plugin.
-In your app you should enable it by setting in **app.component** or 
+In your app you should enable it and restart server by setting in **app.component** or 
 somewhere where your app begin:
 		
-    Resource.setUrlToDocsServer('http://localhost:3333');
+    Resource.setUrlToDocsServerAndRecreateIt('http://localhost:3333'); 
 
 When you are using your app and making requests from ng2-rest lib, you will be
 saving every request with his metadata to hard drive by instance of ng2-rest-docs-server
 which will generate nice docs , with descriptions of requests, use cases, like this :
 
 ![enter image description here](screen.png)
-
-To recreate/clean your docs just send get request to ***&lt;your_docs_server_url&gt;/api/start***    like this :
-
-    curl <your_docs_server_url>/api/start
 
 Instalation on your server:
 
