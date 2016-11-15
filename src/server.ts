@@ -38,7 +38,7 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
     // console.log('docsPath', docsPath)
     // console.log('jsonsPath', jsonsPath)
     // console.log('configPath', configPath)
-    recreate();
+    if (!fs.existsSync(docsPath)) recreate();
 
     let app = express();
     app.use(methodOverride());

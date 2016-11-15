@@ -30,7 +30,8 @@ function run(port, mainURL) {
     // console.log('docsPath', docsPath)
     // console.log('jsonsPath', jsonsPath)
     // console.log('configPath', configPath)
-    recreate();
+    if (!fs.existsSync(docsPath))
+        recreate();
     var app = express();
     app.use(methodOverride());
     app.use(cors());
