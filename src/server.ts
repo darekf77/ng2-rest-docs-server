@@ -117,7 +117,7 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
 
 function deleteFolderRecursive(path) {
     if (fs.existsSync(path)) {
-        fs.readdirSync(path).forEach(function (file, index) {
+        fs.readdirSync(path).forEach(function(file, index) {
             var curPath = path + "/" + file;
             if (fs.lstatSync(curPath).isDirectory()) { // recurse
                 deleteFolderRecursive(curPath);
@@ -174,7 +174,7 @@ function copyFolderRecursiveSync(source, target) {
     //copy
     if (fs.lstatSync(source).isDirectory()) {
         files = fs.readdirSync(source);
-        files.forEach(function (file) {
+        files.forEach(function(file) {
             var curSource = path.join(source, file);
             if (fs.lstatSync(curSource).isDirectory()) {
                 copyFolderRecursiveSync(curSource, targetFolder);
