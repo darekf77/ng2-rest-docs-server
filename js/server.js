@@ -8,13 +8,16 @@ var bodyParser = require('body-parser');
 var docsPath = process.cwd() + "/docs";
 var jsonsPath = docsPath + "/json";
 var configPath = jsonsPath + "/config.json";
+var msgPath = jsonsPath + "/msg.txt";
 var chalk = require('chalk');
 exports.filePrefix = 'url';
 var localFiles = [];
-function recreate() {
+function recreate(msg) {
+    if (msg === void 0) { msg = ''; }
     deleteFolderRecursive(docsPath);
     fs.mkdirSync(docsPath);
     fs.mkdirSync(jsonsPath);
+    fs.writeFileSync(msgPath, msg, 'utf8');
     copyFolderRecursiveSync(__dirname + "/../website/dist", docsPath);
     localFiles.length = 0;
 }
@@ -41,6 +44,12 @@ function run(port, mainURL) {
     app.get('/api/start', function (req, res) {
         recreate();
         console.log('started');
+        localFiles.length = 0;
+        res.status(200).send();
+    });
+    app.get('/api/start/:msg', function (req, res) {
+        recreate(req.params['msg']);
+        console.log('started, with message');
         localFiles.length = 0;
         res.status(200).send();
     });

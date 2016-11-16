@@ -11,8 +11,12 @@ export class JsonConfigService {
 
 
     model = {
-        getAll: () => this.http.get(`json/config.json`).map( r  => r.json() )
+        getAll: () => this.http.get(`json/config.json`).map(r => r.json()),
+        getMessage: () => this.http.get(`json/msg.txt`).map(r => {
+            return r.text()
+        })
     };
+
 
     constructor(private http: Http) {
 

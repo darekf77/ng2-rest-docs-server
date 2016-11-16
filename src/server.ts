@@ -12,6 +12,7 @@ var bodyParser = require('body-parser')
 const docsPath: string = `${process.cwd()}/docs`;
 const jsonsPath = `${docsPath}/json`;
 const configPath = `${jsonsPath}/config.json`;
+const msgPath = `${jsonsPath}/msg.txt`;
 
 var chalk = require('chalk');
 
@@ -19,10 +20,11 @@ export const filePrefix = 'url';
 let localFiles: DocModel[] = [];
 
 
-function recreate() {
+function recreate(msg: string = '') {
     deleteFolderRecursive(docsPath);
     fs.mkdirSync(docsPath);
     fs.mkdirSync(jsonsPath);
+    fs.writeFileSync(msgPath, msg, 'utf8');
     copyFolderRecursiveSync(`${__dirname}/../website/dist`, docsPath);
     localFiles.length = 0;
 }
@@ -54,7 +56,13 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
         console.log('started');
         localFiles.length = 0;
         res.status(200).send();
+    })
 
+    app.get('/api/start/:msg', (req, res) => {
+        recreate(req.params['msg']);
+        console.log('started, with message');
+        localFiles.length = 0;
+        res.status(200).send();
     })
 
     app.post('/api/save', (req, res) => {

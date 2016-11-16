@@ -57,6 +57,7 @@ function mergeExamples(files: DocModel[]): DocModel[] {
 export class StartPageComponent implements OnInit, OnDestroy {
     constructor(private config: JsonConfigService) { }
 
+    msg: string;
     activeFile: DocModel;
     groups: DocGroup[] = [];
     handlers: Subscription[] = [];
@@ -69,6 +70,11 @@ export class StartPageComponent implements OnInit, OnDestroy {
             this.groups = groups;
             console.log('groups', groups);
         }));
+
+        this.handlers.push(this.config.model.getMessage().subscribe(msg => {
+            console.log('msg', msg);
+            this.msg = msg;
+        }))
     }
 
     ngOnDestroy() {
