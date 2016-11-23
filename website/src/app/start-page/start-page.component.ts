@@ -62,18 +62,23 @@ export class StartPageComponent implements OnInit, OnDestroy {
     groups: DocGroup[] = [];
     handlers: Subscription[] = [];
     ngOnInit() {
-        this.handlers.push(this.config.model.getAll().subscribe((files: DocModel[]) => {
-            console.log('files', files);
 
-            let groups = groupFiles(files);
-            groups.forEach(g => g.files = mergeExamples(g.files));
-            this.groups = groups;
-            console.log('groups', groups);
+        this.handlers.push(this.config.model.getGroupFilesList().subscribe((names: string[]) => {
+            console.log('names', names);
+            this.getGroups(names);
         }));
 
         this.handlers.push(this.config.model.getMessage().subscribe(msg => {
             console.log('msg', msg);
             this.msg = msg;
+        }))
+    }
+
+    getGroups(names: string[]) {
+        if (names.length === 0) return;
+        this.handlers.push(this.config.model.getGroup(names.pop()).subscribe(group => {
+            this.groups.push(group);
+            this.getGroups(names);
         }))
     }
 

@@ -1,25 +1,37 @@
 "use strict";
 var express = require('express');
 var fs = require('fs');
-var path = require('path');
 var methodOverride = require('method-override');
 var cors = require('cors');
 var bodyParser = require('body-parser');
+var chalk = require('chalk');
+var docs_1 = require('./docs');
+var helpers_1 = require('./helpers');
+var websitePath = __dirname + "/../website/dist";
 var docsPath = process.cwd() + "/docs";
 var jsonsPath = docsPath + "/json";
-var configPath = jsonsPath + "/config.json";
+var requestListPath = jsonsPath + "/requests.json";
 var msgPath = jsonsPath + "/msg.txt";
-var chalk = require('chalk');
+var groupListPath = jsonsPath + "/group.json";
+var groupPath = function (group) {
+    var groupFileName = group.name
+        .trim()
+        .replace(/\s/g, '')
+        .toUpperCase();
+    return jsonsPath + "/group-" + groupFileName;
+};
 exports.filePrefix = 'url';
-var localFiles = [];
+var localGroup = [];
+var localRequests = [];
 function recreate(msg) {
     if (msg === void 0) { msg = ''; }
-    deleteFolderRecursive(docsPath);
+    helpers_1.Helpers.deleteFolderRecursive(docsPath);
     fs.mkdirSync(docsPath);
     fs.mkdirSync(jsonsPath);
     fs.writeFileSync(msgPath, msg, 'utf8');
-    copyFolderRecursiveSync(__dirname + "/../website/dist", docsPath);
-    localFiles.length = 0;
+    helpers_1.Helpers.copyFolderRecursiveSync(websitePath, docsPath);
+    localGroup.length = 0;
+    localRequests.length = 0;
 }
 function run(port, mainURL) {
     if (port === void 0) { port = 3333; }
@@ -27,14 +39,14 @@ function run(port, mainURL) {
     if (mainURL) {
         console.log(chalk.green("Base URL form angular2 app: " + mainURL));
     }
-    // console.log('process.cwd',process.cwd())
-    // console.log('__dirname',__dirname)
-    // console.log('process.argv[1]',process.argv[1])
-    // console.log('docsPath', docsPath)
-    // console.log('jsonsPath', jsonsPath)
-    // console.log('configPath', configPath)
     if (!fs.existsSync(docsPath))
         recreate();
+    try {
+        localRequests = JSON.parse(fs.readFileSync(requestListPath, 'utf8').toString());
+    }
+    catch (error) {
+        localRequests.length = 0;
+    }
     var app = express();
     app.use(methodOverride());
     app.use(cors());
@@ -44,116 +56,76 @@ function run(port, mainURL) {
     app.get('/api/start', function (req, res) {
         recreate();
         console.log('started');
-        localFiles.length = 0;
         res.status(200).send();
     });
     app.get('/api/start/:msg', function (req, res) {
         recreate(req.params['msg']);
         console.log('started, with message');
-        localFiles.length = 0;
         res.status(200).send();
     });
     app.post('/api/save', function (req, res) {
-        // console.log('save', JSON.stringify(req.body))
         var body = req.body;
         if (!body) {
             console.log(chalk.gray('no body in request'));
             res.status(400).send();
             return;
         }
-        if (!body.url || body.url.trim() === '') {
-            body.url = '<< undefined url >>';
+        prepare(body, mainURL);
+        if (existInLocalRequests(body)) {
+            res.status(400).send();
         }
-        // console.log('body.usecase', body.usecase);
-        if (!body.usecase || body.usecase.trim() === '') {
-            body.usecase = '<< undefined usecase >>';
+        else {
+            // requests            
+            var filename = jsonsPath + "/" + exports.filePrefix + localRequests.length + ".json";
+            body.fileName = filename;
+            fs.writeFileSync(filename, JSON.stringify(body), 'utf8');
+            localRequests.push(body);
+            // groups
+            // TODO optymalization to only read selected group
+            localGroup = docs_1.genereateDocsGroups(localRequests);
+            var names_1 = [];
+            localGroup.forEach(function (g) {
+                fs.writeFileSync(groupPath(g), JSON.stringify(g), 'utf8');
+                names_1.push(g.name);
+            });
+            fs.writeFileSync(groupListPath, JSON.stringify(names_1), 'utf8');
+            res.status(200).send(JSON.stringify(body));
         }
-        if (!body.description || body.description.trim() === '') {
-            body.description = '<< undefined description >>';
-        }
-        if (!body.group || body.group.trim() === '') {
-            body.group = '<< undefined group >>';
-        }
-        if (!body.name || body.name.trim() === '') {
-            body.name = '<< undefined name >>';
-        }
-        if (!body.baseURL || body.baseURL.trim() === '') {
-            body.baseURL = mainURL;
-        }
-        var filename = jsonsPath + "/" + exports.filePrefix + localFiles.length + ".json";
-        localFiles.push(body);
-        console.log('filename', filename);
-        fs.writeFileSync(filename, JSON.stringify(body), 'utf8');
-        body.fileName = filename;
-        fs.writeFileSync(configPath, JSON.stringify(localFiles), 'utf8');
-        res.status(200).send(JSON.stringify(body));
     });
     app.listen(port, function () {
         console.log(chalk.green("Server is working on http://localhost:" + port));
     });
 }
 exports.run = run;
-function deleteFolderRecursive(path) {
-    if (fs.existsSync(path)) {
-        fs.readdirSync(path).forEach(function (file, index) {
-            var curPath = path + "/" + file;
-            if (fs.lstatSync(curPath).isDirectory()) {
-                deleteFolderRecursive(curPath);
-            }
-            else {
-                fs.unlinkSync(curPath);
-            }
-        });
-        fs.rmdirSync(path);
-    }
-}
-;
-function deleteFiles(callback) {
-    if (localFiles.length === 0) {
-        callback();
-        return;
-    }
-    var f = localFiles.shift();
-    fs.unlink(f.fileName, function (err) {
-        if (err) {
-            console.log(err);
-        }
-        if (localFiles.length === 0) {
-            callback();
-            return;
-        }
-        deleteFiles(callback);
+function existInLocalRequests(body) {
+    var filterd = localRequests.filter(function (r) {
+        return (r.urlFull === body.urlFull &&
+            r.method === body.method &&
+            r.usecase === body.usecase &&
+            r.bodyRecieve === body.bodyRecieve &&
+            r.bodySend === body.bodySend &&
+            r.group === body.group);
     });
+    return filterd.length > 0;
 }
-function copyFileSync(source, target) {
-    var targetFile = target;
-    //if target is a directory a new file with the same name will be created
-    if (fs.existsSync(target)) {
-        if (fs.lstatSync(target).isDirectory()) {
-            targetFile = path.join(target, path.basename(source));
-        }
+function prepare(body, baseUrl) {
+    if (!body.url || body.url.trim() === '') {
+        body.url = '<< undefined url >>';
     }
-    fs.writeFileSync(targetFile, fs.readFileSync(source));
-}
-function copyFolderRecursiveSync(source, target) {
-    var files = [];
-    //check if folder needs to be created or integrated
-    var targetFolder = target; // path.join(target, path.basename(source));
-    if (!fs.existsSync(targetFolder)) {
-        fs.mkdirSync(targetFolder);
+    if (!body.usecase || body.usecase.trim() === '') {
+        body.usecase = '<< undefined usecase >>';
     }
-    //copy
-    if (fs.lstatSync(source).isDirectory()) {
-        files = fs.readdirSync(source);
-        files.forEach(function (file) {
-            var curSource = path.join(source, file);
-            if (fs.lstatSync(curSource).isDirectory()) {
-                copyFolderRecursiveSync(curSource, targetFolder);
-            }
-            else {
-                copyFileSync(curSource, targetFolder);
-            }
-        });
+    if (!body.description || body.description.trim() === '') {
+        body.description = '<< undefined description >>';
+    }
+    if (!body.group || body.group.trim() === '') {
+        body.group = '<< undefined group >>';
+    }
+    if (!body.name || body.name.trim() === '') {
+        body.name = '<< undefined name >>';
+    }
+    if (!body.baseURLDocsServer || body.baseURLDocsServer.trim() === '') {
+        body.baseURLDocsServer = baseUrl;
     }
 }
 //# sourceMappingURL=server.js.map

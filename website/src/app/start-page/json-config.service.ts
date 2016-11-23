@@ -11,7 +11,8 @@ export class JsonConfigService {
 
 
     model = {
-        getAll: () => this.http.get(`json/config.json`).map(r => r.json()),
+        getGroupFilesList: () => this.http.get(`json/groups.json`).map(r => r.json()),
+        getGroup: (groupFilesName: string) => this.http.get(`json/${groupFilesName}`).map(r => r.json()),
         getMessage: () => this.http.get(`json/msg.txt`).map(r => {
             return r.text()
         })

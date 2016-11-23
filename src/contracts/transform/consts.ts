@@ -1,0 +1,2 @@
+
+export const WITHOUT_FORM_LENGTH_INDICATOR = 255;

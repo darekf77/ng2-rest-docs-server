@@ -1,32 +1,50 @@
-
 import express = require('express');
 import fs = require('fs');
 import path = require('path');
 import methodOverride = require('method-override');
+
 const cors = require('cors');
+const bodyParser = require('body-parser')
+const chalk = require('chalk');
 
-import { DocModel } from './docs';
+import { DocModel, DocGroup, genereateDocsGroups } from './docs';
+import { Helpers } from './helpers';
 
-var bodyParser = require('body-parser')
+const websitePath = `${__dirname}/../website/dist`;
 
 const docsPath: string = `${process.cwd()}/docs`;
 const jsonsPath = `${docsPath}/json`;
-const configPath = `${jsonsPath}/config.json`;
+
+const requestListPath = `${jsonsPath}/requests.json`;
+
 const msgPath = `${jsonsPath}/msg.txt`;
 
-var chalk = require('chalk');
+
+const groupListPath = `${jsonsPath}/group.json`;
+let groupPath = (group: DocGroup) => {
+    let groupFileName = group.name
+        .trim()
+        .replace(/\s/g, '')
+        .toUpperCase();
+    return `${jsonsPath}/group-${groupFileName}`;
+}
+
+
 
 export const filePrefix = 'url';
-let localFiles: DocModel[] = [];
+let localGroup: DocGroup[] = [];
+let localRequests: DocModel[] = [];
+
 
 
 function recreate(msg: string = '') {
-    deleteFolderRecursive(docsPath);
+    Helpers.deleteFolderRecursive(docsPath);
     fs.mkdirSync(docsPath);
     fs.mkdirSync(jsonsPath);
     fs.writeFileSync(msgPath, msg, 'utf8');
-    copyFolderRecursiveSync(`${__dirname}/../website/dist`, docsPath);
-    localFiles.length = 0;
+    Helpers.copyFolderRecursiveSync(websitePath, docsPath);
+    localGroup.length = 0;
+    localRequests.length = 0;
 }
 
 export function run(port: number = 3333, mainURL: string = 'http://localhost:3000') {
@@ -34,13 +52,15 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
     if (mainURL) {
         console.log(chalk.green(`Base URL form angular2 app: ${mainURL}`));
     }
-    // console.log('process.cwd',process.cwd())
-    // console.log('__dirname',__dirname)
-    // console.log('process.argv[1]',process.argv[1])
-    // console.log('docsPath', docsPath)
-    // console.log('jsonsPath', jsonsPath)
-    // console.log('configPath', configPath)
+
     if (!fs.existsSync(docsPath)) recreate();
+
+    try {
+        localRequests = JSON.parse(fs.readFileSync(requestListPath, 'utf8').toString());
+    } catch (error) {
+        localRequests.length = 0;
+    }
+
 
     let app = express();
     app.use(methodOverride());
@@ -54,66 +74,51 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
     app.get('/api/start', (req, res) => {
         recreate();
         console.log('started');
-        localFiles.length = 0;
         res.status(200).send();
     })
 
     app.get('/api/start/:msg', (req, res) => {
         recreate(req.params['msg']);
         console.log('started, with message');
-        localFiles.length = 0;
         res.status(200).send();
     })
 
     app.post('/api/save', (req, res) => {
 
-        // console.log('save', JSON.stringify(req.body))
         let body: DocModel = req.body;
+
         if (!body) {
             console.log(chalk.gray('no body in request'));
             res.status(400).send();
             return;
         }
 
-        if (!body.url || body.url.trim() === '') {
-            body.url = '<< undefined url >>';
+        prepare(body, mainURL);
+
+        if (existInLocalRequests(body)) {
+            res.status(400).send();
+        } else {
+
+            // requests            
+            let filename = `${jsonsPath}/${filePrefix}${localRequests.length}.json`;
+            body.fileName = filename;
+            fs.writeFileSync(filename, JSON.stringify(body), 'utf8');
+            localRequests.push(body);
+
+            // groups
+            // TODO optymalization to only read selected group
+            localGroup = genereateDocsGroups(localRequests);
+            let names = [];
+            localGroup.forEach(g => {
+                fs.writeFileSync(groupPath(g), JSON.stringify(g), 'utf8');
+                names.push(g.name);
+            });
+            fs.writeFileSync(groupListPath, JSON.stringify(names), 'utf8');
+
+            res.status(200).send(JSON.stringify(body));
         }
 
-        // console.log('body.usecase', body.usecase);
-        if (!body.usecase || body.usecase.trim() === '') {
-            body.usecase = '<< undefined usecase >>';
-        }
-
-        if (!body.description || body.description.trim() === '') {
-            body.description = '<< undefined description >>';
-        }
-
-        if (!body.group || body.group.trim() === '') {
-            body.group = '<< undefined group >>';
-        }
-
-        if (!body.name || body.name.trim() === '') {
-            body.name = '<< undefined name >>';
-        }
-
-        if (!body.baseURL || body.baseURL.trim() === '') {
-            body.baseURL = mainURL;
-        }
-
-
-        let filename = `${jsonsPath}/${filePrefix}${localFiles.length}.json`
-        localFiles.push(body);
-
-        console.log('filename', filename);
-
-        fs.writeFileSync(filename, JSON.stringify(body), 'utf8');
-
-        body.fileName = filename;
-
-        fs.writeFileSync(configPath, JSON.stringify(localFiles), 'utf8');
-        res.status(200).send(JSON.stringify(body));
-
-    })
+    });
 
 
     app.listen(port, () => {
@@ -121,74 +126,47 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
     });
 }
 
-
-
-function deleteFolderRecursive(path) {
-    if (fs.existsSync(path)) {
-        fs.readdirSync(path).forEach(function(file, index) {
-            var curPath = path + "/" + file;
-            if (fs.lstatSync(curPath).isDirectory()) { // recurse
-                deleteFolderRecursive(curPath);
-            } else { // delete file
-                fs.unlinkSync(curPath);
-            }
-        });
-        fs.rmdirSync(path);
-    }
-};
-
-function deleteFiles(callback: () => void) {
-    if (localFiles.length === 0) {
-        callback();
-        return;
-    }
-    let f: DocModel = localFiles.shift();
-    fs.unlink(f.fileName, (err) => {
-        if (err) {
-            console.log(err);
-        }
-        if (localFiles.length === 0) {
-            callback();
-            return;
-        }
-        deleteFiles(callback)
+function existInLocalRequests(body: DocModel) {
+    let filterd = localRequests.filter(r => {
+        return (
+            r.urlFull === body.urlFull &&
+            r.method === body.method &&
+            r.usecase === body.usecase &&
+            r.bodyRecieve === body.bodyRecieve &&
+            r.bodySend === body.bodySend &&
+            r.group === body.group
+        )
     })
+    return filterd.length > 0;
 }
 
 
-function copyFileSync(source, target) {
+function prepare(body: DocModel, baseUrl: string) {
 
-    var targetFile = target;
 
-    //if target is a directory a new file with the same name will be created
-    if (fs.existsSync(target)) {
-        if (fs.lstatSync(target).isDirectory()) {
-            targetFile = path.join(target, path.basename(source));
-        }
+    if (!body.url || body.url.trim() === '') {
+        body.url = '<< undefined url >>';
     }
 
-    fs.writeFileSync(targetFile, fs.readFileSync(source));
-}
-
-function copyFolderRecursiveSync(source, target) {
-    var files = [];
-
-    //check if folder needs to be created or integrated
-    var targetFolder = target;// path.join(target, path.basename(source));
-    if (!fs.existsSync(targetFolder)) {
-        fs.mkdirSync(targetFolder);
+    if (!body.usecase || body.usecase.trim() === '') {
+        body.usecase = '<< undefined usecase >>';
     }
 
-    //copy
-    if (fs.lstatSync(source).isDirectory()) {
-        files = fs.readdirSync(source);
-        files.forEach(function(file) {
-            var curSource = path.join(source, file);
-            if (fs.lstatSync(curSource).isDirectory()) {
-                copyFolderRecursiveSync(curSource, targetFolder);
-            } else {
-                copyFileSync(curSource, targetFolder);
-            }
-        });
+    if (!body.description || body.description.trim() === '') {
+        body.description = '<< undefined description >>';
     }
+
+    if (!body.group || body.group.trim() === '') {
+        body.group = '<< undefined group >>';
+    }
+
+    if (!body.name || body.name.trim() === '') {
+        body.name = '<< undefined name >>';
+    }
+
+    if (!body.baseURLDocsServer || body.baseURLDocsServer.trim() === '') {
+        body.baseURLDocsServer = baseUrl;
+    }
+
+
 }
