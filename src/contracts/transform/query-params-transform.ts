@@ -1,14 +1,20 @@
+import { clean } from './transform-helper';
 
-import { WITHOUT_FORM_LENGTH_INDICATOR } from './consts';
+import { regexForAllCharacters, regexFromLength } from './transform-helper';
 
-export function transformQueryPrams( queryParams: Object ): string {
-    if( !queryParams ) return '';
-    let res: string;
+import { PRODUCER, CONSUMER } from './consts';
+
+export function transformQueryPrams(queryParams: Object): string {
+    if (!queryParams) return '';
     let rows: string[] = [];
-    for( let p in queryParams ) {
-        // let value = queryParams[p];
-        rows.push(`parameter '${p}' : value(consumer(regex('.{${WITHOUT_FORM_LENGTH_INDICATOR}}')))\n`)
+    for (let p in queryParams) {
+        let value = queryParams[p];
+        rows.push(`parameter '${p}' : value(${CONSUMER}(matching("${regexForAllCharacters()}")),producer('${value}')\n)`)
     }
-    return `queryParameters {\n${rows.join()}}`; 
+    if (rows.length === 0) return ``;
+    if (rows.length === 1) return `parameter {\n${rows[0]}}`;
+    if (rows.length === 2) return `parameter {\n${rows[0]}\n${rows[1]}}`;
+    let res = rows.join(''); 
+    return `queryParameters {\n${res}\n}`;
 }
 
