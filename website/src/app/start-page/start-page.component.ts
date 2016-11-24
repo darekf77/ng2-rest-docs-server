@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { TranslatePipe } from 'ng2-translate/ng2-translate';
 import { DocGroup, DocModel, HttpMethod, DocExample } from 'ng2-rest/ng2-rest';
 
-
+import { HighlightCodeDirective } from './highlight.directive';
 
 import { JsonConfigService } from './json-config.service';
 
@@ -52,7 +52,8 @@ function mergeExamples(files: DocModel[]): DocModel[] {
     template: require('./start-page.component.html'),
     styles: [require('./start-page.component.scss')],
     pipes: [TranslatePipe],
-    providers: [JsonConfigService]
+    providers: [JsonConfigService],
+    directives: [HighlightCodeDirective]
 })
 export class StartPageComponent implements OnInit, OnDestroy {
     constructor(private config: JsonConfigService) { }
@@ -137,5 +138,9 @@ export class StartPageComponent implements OnInit, OnDestroy {
         this.recalculatePadding();
     }
 
+    removeReturn(s: string) {
+        console.log('s', s)
+        return s.replace(/\\n/g, '\n')
+    }
 
 }

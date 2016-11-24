@@ -1,5 +1,6 @@
 import express = require('express');
 import fs = require('fs');
+import md5 = require('md5');
 import path = require('path');
 import methodOverride = require('method-override');
 
@@ -19,14 +20,16 @@ const requestListPath = `${jsonsPath}/requests.json`;
 
 const msgPath = `${jsonsPath}/msg.txt`;
 
+const contractsPath = `${jsonsPath}/contracts`;
 
-const groupListPath = `${jsonsPath}/group.json`;
+
+const groupListPath = `${jsonsPath}/groups.json`;
 let groupPath = (group: DocGroup) => {
     let groupFileName = group.name
         .trim()
         .replace(/\s/g, '')
         .toUpperCase();
-    return `${jsonsPath}/group-${groupFileName}`;
+    return `${jsonsPath}/group-${groupFileName}.json`;
 }
 
 
@@ -41,6 +44,7 @@ function recreate(msg: string = '') {
     Helpers.deleteFolderRecursive(docsPath);
     fs.mkdirSync(docsPath);
     fs.mkdirSync(jsonsPath);
+    fs.mkdirSync(contractsPath);
     fs.writeFileSync(msgPath, msg, 'utf8');
     Helpers.copyFolderRecursiveSync(websitePath, docsPath);
     localGroup.length = 0;
@@ -108,8 +112,16 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
             // groups
             // TODO optymalization to only read selected group
             localGroup = genereateDocsGroups(localRequests);
+
+
             let names = [];
             localGroup.forEach(g => {
+                g.files.forEach(f => {
+                    let counter = 0;
+                    f.contracts.forEach(c => {
+                        fs.writeFileSync(`${contractsPath}/${f.name}-${md5(c)}${counter++}.groovy`, c, 'utf8');
+                    });
+                })
                 fs.writeFileSync(groupPath(g), JSON.stringify(g), 'utf8');
                 names.push(g.name);
             });
@@ -167,6 +179,22 @@ function prepare(body: DocModel, baseUrl: string) {
     if (!body.baseURLDocsServer || body.baseURLDocsServer.trim() === '') {
         body.baseURLDocsServer = baseUrl;
     }
+
+    // if (body.bodyRecieve && typeof body.bodyRecieve === 'string') {
+    //     try {
+    //         body.bodyRecieve = JSON.parse(body.bodyRecieve)
+    //     } catch (error) {
+    //         console.log('bad body.bodyRecieve');
+    //     }
+    // }
+
+    // if (body.bodySend && typeof body.bodySend === 'string') {
+    //     try {
+    //         body.bodySend = JSON.parse(body.bodySend)
+    //     } catch (error) {
+    //         console.log('bad body.bodyRecieve');
+    //     }
+    // }
 
 
 }

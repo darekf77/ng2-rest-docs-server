@@ -8,7 +8,7 @@ function getContract(ex) {
     c.queryParams = transform_1.transformQueryPrams(ex.urlParams);
     c.method = ex.method;
     c.status = 200;
-    c.url = ex.url;
+    c.url = ex.url.replace(ex.baseURLDocsServer, '');
     var res = JSON.stringify(contractGenerator(c));
     console.log('------------------------------------------------');
     console.log(res);
@@ -16,6 +16,6 @@ function getContract(ex) {
 }
 exports.getContract = getContract;
 function contractGenerator(contract) {
-    return "org.springframework.cloud.contract.spec.Contract.make {\n        request {\n            urlPath(" + contract.url + ") {\n                " + contract.queryParams + "                \n            }\n            method " + contract.method + "\n            " + contract.headers + "\n            " + contract.requestBody + "\n        }\n        response {\n            status " + contract.status + "\n            " + contract.responseBody + "\n        }\n    }";
+    return "org.springframework.cloud.contract.spec.Contract.make {\n        request {\n            urlPath('" + contract.url + "') {\n                " + contract.queryParams + "                \n            }\n            method " + contract.method + "\n            " + contract.headers + "\n            " + contract.requestBody + "\n        }\n        response {\n            status " + contract.status + "\n            " + contract.responseBody + "\n        }\n    }";
 }
 //# sourceMappingURL=get-contract.js.map

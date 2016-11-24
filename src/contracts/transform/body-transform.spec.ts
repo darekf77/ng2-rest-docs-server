@@ -57,6 +57,15 @@ describe("Groovy syntax transformer body", function () {
             )`));
   })
 
+  it('should prepare types simple tyes ', () => {
+    let dd: any = JSON.stringify(obj);
+    dd = prepareSimpleTypes(dd);
+    expect(clean(dd['asd'])).to.eq(clean(`asd: $(
+                consumer('11'),
+                producer(regex('${regexForAllCharacters()}'))
+            )`));
+  })
+
   it('should prepare complex types', () => {
     prepareSimpleTypes(obj)
     prepareArraysAndObjects(obj);
@@ -66,6 +75,7 @@ describe("Groovy syntax transformer body", function () {
                 producer(regex('${regexForAllCharacters()}'))
             )
             ]]`));
+
 
 
     expect(clean(bodySimpelObjet(obj))).to.eq(clean(`
@@ -83,10 +93,11 @@ describe("Groovy syntax transformer body", function () {
 
   it('shoudl prepare groovy object', () => {
 
-    expect(clean(bodyTransform({
-      someth: 'aaa',
-      super: 'hihi'
-    }, [
+    expect(clean(bodyTransform(
+      JSON.stringify({
+        someth: 'aaa',
+        super: 'hihi'
+      }), [
         { path: 'someth', length: 12, }
       ]))).to.eq(clean(`
         someth: $(

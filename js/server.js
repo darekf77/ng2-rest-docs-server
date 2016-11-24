@@ -1,6 +1,7 @@
 "use strict";
 var express = require('express');
 var fs = require('fs');
+var md5 = require('md5');
 var methodOverride = require('method-override');
 var cors = require('cors');
 var bodyParser = require('body-parser');
@@ -12,13 +13,14 @@ var docsPath = process.cwd() + "/docs";
 var jsonsPath = docsPath + "/json";
 var requestListPath = jsonsPath + "/requests.json";
 var msgPath = jsonsPath + "/msg.txt";
-var groupListPath = jsonsPath + "/group.json";
+var contractsPath = jsonsPath + "/contracts";
+var groupListPath = jsonsPath + "/groups.json";
 var groupPath = function (group) {
     var groupFileName = group.name
         .trim()
         .replace(/\s/g, '')
         .toUpperCase();
-    return jsonsPath + "/group-" + groupFileName;
+    return jsonsPath + "/group-" + groupFileName + ".json";
 };
 exports.filePrefix = 'url';
 var localGroup = [];
@@ -28,6 +30,7 @@ function recreate(msg) {
     helpers_1.Helpers.deleteFolderRecursive(docsPath);
     fs.mkdirSync(docsPath);
     fs.mkdirSync(jsonsPath);
+    fs.mkdirSync(contractsPath);
     fs.writeFileSync(msgPath, msg, 'utf8');
     helpers_1.Helpers.copyFolderRecursiveSync(websitePath, docsPath);
     localGroup.length = 0;
@@ -85,6 +88,12 @@ function run(port, mainURL) {
             localGroup = docs_1.genereateDocsGroups(localRequests);
             var names_1 = [];
             localGroup.forEach(function (g) {
+                g.files.forEach(function (f) {
+                    var counter = 0;
+                    f.contracts.forEach(function (c) {
+                        fs.writeFileSync(contractsPath + "/" + f.name + "-" + md5(c) + counter++ + ".groovy", c, 'utf8');
+                    });
+                });
                 fs.writeFileSync(groupPath(g), JSON.stringify(g), 'utf8');
                 names_1.push(g.name);
             });
@@ -127,5 +136,19 @@ function prepare(body, baseUrl) {
     if (!body.baseURLDocsServer || body.baseURLDocsServer.trim() === '') {
         body.baseURLDocsServer = baseUrl;
     }
+    // if (body.bodyRecieve && typeof body.bodyRecieve === 'string') {
+    //     try {
+    //         body.bodyRecieve = JSON.parse(body.bodyRecieve)
+    //     } catch (error) {
+    //         console.log('bad body.bodyRecieve');
+    //     }
+    // }
+    // if (body.bodySend && typeof body.bodySend === 'string') {
+    //     try {
+    //         body.bodySend = JSON.parse(body.bodySend)
+    //     } catch (error) {
+    //         console.log('bad body.bodyRecieve');
+    //     }
+    // }
 }
 //# sourceMappingURL=server.js.map

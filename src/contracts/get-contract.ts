@@ -18,7 +18,7 @@ export function getContract(ex: DocModel): string {
     c.queryParams = transformQueryPrams(ex.urlParams);
     c.method = ex.method;
     c.status = 200;
-    c.url = ex.url;
+    c.url = ex.url.replace(ex.baseURLDocsServer, '');
     let res = JSON.stringify(contractGenerator(c));
     console.log('------------------------------------------------')
     console.log(res);
@@ -30,7 +30,7 @@ function contractGenerator(contract: SpringContract) {
 
     return `org.springframework.cloud.contract.spec.Contract.make {
         request {
-            urlPath(${contract.url}) {
+            urlPath('${contract.url}') {
                 ${contract.queryParams}                
             }
             method ${contract.method}

@@ -12,7 +12,12 @@ export class JsonConfigService {
 
     model = {
         getGroupFilesList: () => this.http.get(`json/groups.json`).map(r => r.json()),
-        getGroup: (groupFilesName: string) => this.http.get(`json/${groupFilesName}`).map(r => r.json()),
+        getGroup: (groupFilesName: string) => {
+            let g = groupFilesName.trim()
+                .replace(/\s/g, '')
+                .toUpperCase();
+            return  this.http.get(`json/group-${g}.json`).map(r => r.json())
+        },
         getMessage: () => this.http.get(`json/msg.txt`).map(r => {
             return r.text()
         })

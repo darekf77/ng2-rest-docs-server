@@ -33,6 +33,11 @@ describe("Groovy syntax transformer body", function () {
         body_transform_1.prepareSimpleTypes(obj);
         expect(transform_helper_1.clean(obj.asd)).to.eq(transform_helper_1.clean("asd: $(\n                consumer('11'),\n                producer(regex('" + transform_helper_1.regexForAllCharacters() + "'))\n            )"));
     });
+    it('should prepare types simple tyes ', function () {
+        var dd = JSON.stringify(obj);
+        dd = body_transform_1.prepareSimpleTypes(dd);
+        expect(transform_helper_1.clean(dd['asd'])).to.eq(transform_helper_1.clean("asd: $(\n                consumer('11'),\n                producer(regex('" + transform_helper_1.regexForAllCharacters() + "'))\n            )"));
+    });
     it('should prepare complex types', function () {
         body_transform_1.prepareSimpleTypes(obj);
         body_transform_1.prepareArraysAndObjects(obj);
@@ -40,10 +45,10 @@ describe("Groovy syntax transformer body", function () {
         expect(transform_helper_1.clean(body_transform_1.bodySimpelObjet(obj))).to.eq(transform_helper_1.clean("\n      asd: $(consumer('11'),producer(regex('.+')) ),\n      arr: [[ \n        da: $(\n            consumer('123123'),\n            producer(regex('" + transform_helper_1.regexForAllCharacters() + "'))\n        )\n        ]]\n      "));
     });
     it('shoudl prepare groovy object', function () {
-        expect(transform_helper_1.clean(body_transform_1.bodyTransform({
+        expect(transform_helper_1.clean(body_transform_1.bodyTransform(JSON.stringify({
             someth: 'aaa',
             super: 'hihi'
-        }, [
+        }), [
             { path: 'someth', length: 12, }
         ]))).to.eq(transform_helper_1.clean("\n        someth: $(\n                consumer('aaa'),\n                producer(regex('" + transform_helper_1.regexFromLength(12) + "'))\n            ),\n        super: $(\n            consumer('hihi'),\n            producer(regex('" + transform_helper_1.regexForAllCharacters() + "'))\n        )\n    \n    "));
     });

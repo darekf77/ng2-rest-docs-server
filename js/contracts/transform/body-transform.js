@@ -11,6 +11,14 @@ var consts_1 = require('./consts');
  * @returns {string}
  */
 function bodyTransform(data, bindings) {
+    console.log('data', data);
+    try {
+        data = JSON.parse(data);
+    }
+    catch (error) {
+        console.error('string withou object in bodyTransform');
+        return '';
+    }
     if (bindings && bindings.length > 0) {
         bindings.forEach(function (binding) {
             binding.temp = path_object_1.PathObject.get(binding.path, data);
@@ -22,7 +30,7 @@ function bodyTransform(data, bindings) {
             var path = binding.path;
             var consumer = binding.temp;
             var consumerString = consumer ? consts_1.CONSUMER + "('" + consumer + "')," : '';
-            var value = path_object_1.PathObject.fieldName(path) + ":  \n                    $(\n                        " + consumerString + " " + consts_1.PRODUCER + "(regex('" + transform_helper_1.regexFromLength(binding.length) + "')) \n                    )\n";
+            var value = "\n" + path_object_1.PathObject.fieldName(path) + ":  \n                    $(\n                        " + consumerString + " " + consts_1.PRODUCER + "(regex('" + transform_helper_1.regexFromLength(binding.length) + "')) \n                    )\n";
             path_object_1.PathObject.set(path, value, data);
         });
     }
@@ -88,7 +96,7 @@ function prepareArraysAndObjects(data) {
                     prepareArraysAndObjects(first);
                 }
                 else
-                    data[p] = p + ": [[\n        " + bodySimpelObjet(first) + "\n    ]]";
+                    data[p] = p + ": [[\n\n                    " + bodySimpelObjet(first) + "\n\n                ]]\n";
             }
             else {
                 data[p] = p + ": [[]]";
@@ -110,6 +118,15 @@ exports.prepareArraysAndObjects = prepareArraysAndObjects;
  * @param {Object} data
  */
 function prepareSimpleTypes(data) {
+    if (typeof data === 'string') {
+        try {
+            data = JSON.parse(data);
+        }
+        catch (error) {
+            console.log('canno prepareSimpleTypes ');
+            return;
+        }
+    }
     for (var p in data) {
         var v = data[p];
         if (v instanceof Array) {
@@ -123,9 +140,10 @@ function prepareSimpleTypes(data) {
             prepareSimpleTypes(v);
         }
         else {
-            data[p] = p + ": $(\n        " + consts_1.CONSUMER + "('" + data[p] + "'),\n        " + consts_1.PRODUCER + "(regex('" + transform_helper_1.regexForAllCharacters() + "'))\n    ) ";
+            data[p] = "\n" + p + ": $(\n                " + consts_1.CONSUMER + "('" + data[p] + "'),\n                " + consts_1.PRODUCER + "(regex('" + transform_helper_1.regexForAllCharacters() + "'))\n            ) ";
         }
     }
+    return data;
 }
 exports.prepareSimpleTypes = prepareSimpleTypes;
 //# sourceMappingURL=body-transform.js.map

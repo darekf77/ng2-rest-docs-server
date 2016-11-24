@@ -14,7 +14,19 @@ import { PRODUCER, CONSUMER } from './consts';
  * @param {FormInputBind[]} bindings
  * @returns {string}
  */
-export function bodyTransform(data: Object, bindings?: FormInputBind[]): string {
+export function bodyTransform(data: any, bindings?: FormInputBind[]): string {
+
+
+    console.log('data', data);
+
+    try {
+        data = JSON.parse(data);
+    } catch (error) {
+        console.error('string withou object in bodyTransform');
+        return '';
+    }
+
+
 
     if (bindings && bindings.length > 0) {
         bindings.forEach(binding => {
@@ -29,7 +41,7 @@ export function bodyTransform(data: Object, bindings?: FormInputBind[]): string 
             let consumer = binding.temp;
             let consumerString = consumer ? `${CONSUMER}('${consumer}'),` : '';
 
-            let value = `${PathObject.fieldName(path)}:  
+            let value = `\n${PathObject.fieldName(path)}:  
                     $(
                         ${consumerString} ${PRODUCER}(regex('${regexFromLength(binding.length)}')) 
                     )\n`
@@ -97,9 +109,9 @@ export function prepareArraysAndObjects(data: Object) {
                 if (checkIfContainsArrayOrObjecct(first)) {
                     prepareArraysAndObjects(first);
                 }
-                else data[p] = `${p}: [[
-        ${bodySimpelObjet(first)}
-    ]]`;
+                else data[p] = `${p}: [[\n
+                    ${bodySimpelObjet(first)}\n
+                ]]\n`;
             } else {
                 data[p] = `${p}: [[]]`
             }
@@ -118,6 +130,14 @@ export function prepareArraysAndObjects(data: Object) {
  * @param {Object} data
  */
 export function prepareSimpleTypes(data: Object) {
+    if (typeof data === 'string') {
+        try {
+            data = JSON.parse(data);
+        } catch (error) {
+            console.log('canno prepareSimpleTypes ');
+            return;
+        }
+    }
     for (let p in data) {
         let v = data[p];
         if (v instanceof Array) {
@@ -129,10 +149,11 @@ export function prepareSimpleTypes(data: Object) {
         } else if (v instanceof Object) {
             prepareSimpleTypes(v);
         } else {
-            data[p] = `${p}: $(
-        ${CONSUMER}('${data[p]}'),
-        ${PRODUCER}(regex('${regexForAllCharacters()}'))
-    ) `;
+            data[p] = `\n${p}: $(
+                ${CONSUMER}('${data[p]}'),
+                ${PRODUCER}(regex('${regexForAllCharacters()}'))
+            ) `;
         }
     }
+    return data;
 }
