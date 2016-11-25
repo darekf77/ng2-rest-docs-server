@@ -14,7 +14,7 @@ export function getContract(ex: DocModel): string {
     let c: SpringContract = <SpringContract>{};
     c.requestBody = bodyTransform(ex.bodySend, ex.form);
     c.responseBody = bodyTransform(ex.bodyRecieve);
-    c.headers = transformHeaders(ex.form);
+    // c.headers = transformHeaders(ex.form);
     c.queryParams = transformQueryPrams(ex.urlParams);
     c.method = ex.method;
     c.status = 200;

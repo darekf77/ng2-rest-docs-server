@@ -35,53 +35,49 @@
                             <br>
                             <h3> Contract </h3>
                             <br>
-
-                            <pre>
-                                <code *ngFor="let contract of file.contracts" highlight 
-                                class="typescript contract">{{removeReturn(contract)}}
-                                </code>
-                                <br>
+                            <pre  *ngFor="let contract of file.contracts" >
+                                <code highlight 
+                                class="groovy"> {{removeReturn(contract)}} </code>
                             </pre>
 
-                        </div>
 
 
-                        <br>
-                        <div class="list-group">
-                            <span class="list-group-item" *ngFor="let ex of file.examples">
+                            <br>
+                            <div class="list-group">
+                                <span class="list-group-item" *ngFor="let ex of file.examples">
                                     <h4 class="list-group-item-heading" (click)="openExample(ex)"  >
                                         <span class="http-method-{{ex.method}} http-method" >{{ex.method}}</span>&nbsp;{{ex.usecase}}
-                            <span style="margin-right: 10px;" class="glyphicon glyphicon-menu-down pull-left" *ngIf="!ex.isOpen">
+                                <span style="margin-right: 10px;" class="glyphicon glyphicon-menu-down pull-left" *ngIf="!ex.isOpen">
                                         </span>
-                            <span style="margin-right: 10px;" class="glyphicon glyphicon-menu-up pull-left" *ngIf="ex.isOpen">
+                                <span style="margin-right: 10px;" class="glyphicon glyphicon-menu-up pull-left" *ngIf="ex.isOpen">
                                         </span>
-                            </h4>
-                            <hr *ngIf="ex.isOpen">
-                            <p *ngIf="ex.isOpen && ex.urlFull" class="list-group-item-text">
-                                <strong>Full request url:</strong> {{ex.urlFull}} <br>
-                            </p>
-                            <p *ngIf="ex.isOpen && ex.urlParams" class="list-group-item-text">
-                                <strong>Url params: </strong> <code>{{ex.urlParams}}</code> <br>
-                            </p>
-                            <p *ngIf="ex.isOpen && ex.bodySend" class="list-group-item-text">
-                                Request body: <br>
-                                <code>
+                                </h4>
+                                <hr *ngIf="ex.isOpen">
+                                <p *ngIf="ex.isOpen && ex.urlFull" class="list-group-item-text">
+                                    <strong>Full request url:</strong> {{ex.urlFull}} <br>
+                                </p>
+                                <p *ngIf="ex.isOpen && ex.urlParams" class="list-group-item-text">
+                                    <strong>Url params: </strong> <code>{{ex.urlParams}}</code> <br>
+                                </p>
+                                <p *ngIf="ex.isOpen && ex.bodySend" class="list-group-item-text">
+                                    Request body: <br>
+                                    <code>
                                                 {{ex.bodySend}}
                                             </code>
-                            </p>
-                            <p *ngIf="ex.isOpen && ex.bodyRecieve" class="list-group-item-text">
-                                Received data: <br>
-                                <code>
+                                </p>
+                                <p *ngIf="ex.isOpen && ex.bodyRecieve" class="list-group-item-text">
+                                    Received data: <br>
+                                    <code>
                                                 {{ex.bodyRecieve}}
                                             </code>
-                            </p>
-                            </span>
+                                </p>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
-</div>
-</tr>
-</tbody>
-</table>
+            </tr>
+        </tbody>
+    </table>
 
 </div>

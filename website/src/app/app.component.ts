@@ -4,7 +4,9 @@
 import { Component, ViewEncapsulation, Inject } from '@angular/core';
 
 
-import {TranslateService} from 'ng2-translate/ng2-translate';
+import { HighlightCodeDirective } from './start-page/highlight.directive';
+
+import { TranslateService } from 'ng2-translate/ng2-translate';
 import { Resource } from 'ng2-rest/ng2-rest';
 
 import { AppState } from './app.service';
@@ -16,10 +18,14 @@ export enum ENDPOINTS {
   API
 }
 
-
-
 require('!style!css!bootstrap/dist/css/bootstrap.css');
 require('!style!css!font-awesome/css/font-awesome.css');
+require('!style!css!assets/lib/vs.css');
+
+require('!script-loader!assets/lib/highlight.js');
+require('!script-loader!assets/lib/groovy.js');
+
+
 
 /*
  * App Component
@@ -34,7 +40,8 @@ require('!style!css!font-awesome/css/font-awesome.css');
     require('!raw!../assets/css/animate.css'),
     require('./app.component.scss')
   ],
-  template: require('./app.component.html')
+  template: require('./app.component.html'),
+  directives: [HighlightCodeDirective]
 })
 export class App {
   angularclassLogo = ''; //assets/img/angularclass-avatar.png';

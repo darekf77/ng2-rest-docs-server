@@ -4,7 +4,7 @@ function getContract(ex) {
     var c = {};
     c.requestBody = transform_1.bodyTransform(ex.bodySend, ex.form);
     c.responseBody = transform_1.bodyTransform(ex.bodyRecieve);
-    c.headers = transform_1.transformHeaders(ex.form);
+    // c.headers = transformHeaders(ex.form);
     c.queryParams = transform_1.transformQueryPrams(ex.urlParams);
     c.method = ex.method;
     c.status = 200;

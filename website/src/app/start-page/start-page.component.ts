@@ -140,7 +140,10 @@ export class StartPageComponent implements OnInit, OnDestroy {
 
     removeReturn(s: string) {
         console.log('s', s)
-        return s.replace(/\\n/g, '\n')
+        let t = s.replace(/\\n/g, '\n')
+        return t.slice(1, t.length - 2);
     }
+
+
 
 }

@@ -13,6 +13,7 @@ export class HighlightCodeDirective {
 
         if (this.elementRef.nativeElement) {
             hljs.highlightBlock(this.elementRef.nativeElement);
+            console.log('After view inited !!!')
         }
     }
 }
