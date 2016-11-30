@@ -129,6 +129,7 @@ export class StartPageComponent implements OnInit, OnDestroy {
         });
     }
 
+
     openExample(ex: DocExample) {
         if (!ex['isOpen']) {
             ex['isOpen'] = true;
@@ -139,9 +140,9 @@ export class StartPageComponent implements OnInit, OnDestroy {
     }
 
     removeReturn(s: string) {
-        console.log('s', s)
-        let t = s.replace(/\\n/g, '\n')
-        return t.slice(1, t.length - 2);
+
+        let t = decodeURIComponent(s).replace(/\\n/g, '\n')
+        return t.slice(1, t.length - 1);
     }
 
 

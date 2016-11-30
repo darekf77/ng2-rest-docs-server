@@ -1,6 +1,6 @@
 import { FormInputBind, SpringContract } from './models';
 import { DocModel } from '../docs';
-import { HttpStatus } from '../http';
+import { HttpCode } from '../http';
 
 import {
     transformQueryPrams,
@@ -17,7 +17,7 @@ export function getContract(ex: DocModel): string {
     // c.headers = transformHeaders(ex.form);
     c.queryParams = transformQueryPrams(ex.urlParams);
     c.method = ex.method;
-    c.status = 200;
+    c.status = ex.status;
     c.url = ex.url.replace(ex.baseURLDocsServer, '');
     let res = JSON.stringify(contractGenerator(c));
     console.log('------------------------------------------------')
@@ -28,7 +28,7 @@ export function getContract(ex: DocModel): string {
 
 function contractGenerator(contract: SpringContract) {
 
-    return `org.springframework.cloud.contract.spec.Contract.make {
+    return encodeURIComponent(`org.springframework.cloud.contract.spec.Contract.make {
         request {
             urlPath('${contract.url}') {
                 ${contract.queryParams}                
@@ -41,7 +41,7 @@ function contractGenerator(contract: SpringContract) {
             status ${contract.status}
             ${contract.responseBody}
         }
-    }`;
+    }`);
 
 }
 

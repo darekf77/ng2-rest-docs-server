@@ -1,4 +1,4 @@
-
+import { PRODUCER, CONSUMER } from './consts';
 
 
 export function transformHeaders(headers: Object): string {

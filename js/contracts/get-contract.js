@@ -7,7 +7,7 @@ function getContract(ex) {
     // c.headers = transformHeaders(ex.form);
     c.queryParams = transform_1.transformQueryPrams(ex.urlParams);
     c.method = ex.method;
-    c.status = 200;
+    c.status = ex.status;
     c.url = ex.url.replace(ex.baseURLDocsServer, '');
     var res = JSON.stringify(contractGenerator(c));
     console.log('------------------------------------------------');

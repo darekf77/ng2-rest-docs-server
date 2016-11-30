@@ -35,14 +35,16 @@ function recreate(msg) {
     helpers_1.Helpers.copyFolderRecursiveSync(websitePath, docsPath);
     localGroup.length = 0;
     localRequests.length = 0;
+    console.log(chalk.yellow("Docs folder recreated (" + docsPath + ")"));
 }
-function run(port, mainURL) {
+function run(port, mainURL, clean) {
     if (port === void 0) { port = 3333; }
     if (mainURL === void 0) { mainURL = 'http://localhost:3000'; }
+    if (clean === void 0) { clean = false; }
     if (mainURL) {
         console.log(chalk.green("Base URL form angular2 app: " + mainURL));
     }
-    if (!fs.existsSync(docsPath))
+    if (!fs.existsSync(docsPath) || clean)
         recreate();
     try {
         localRequests = JSON.parse(fs.readFileSync(requestListPath, 'utf8').toString());

@@ -1,4 +1,4 @@
-import { HttpMethod, HttpStatus } from '../../http';
+import { HttpMethod, HttpCode } from '../../http';
 
 export interface SpringContract {
     method: HttpMethod,
@@ -6,6 +6,6 @@ export interface SpringContract {
     queryParams: any;
     requestBody: any;
     responseBody: any;
-    status: HttpStatus;    
+    status: HttpCode;    
     headers: any;
 }

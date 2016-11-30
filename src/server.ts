@@ -49,15 +49,16 @@ function recreate(msg: string = '') {
     Helpers.copyFolderRecursiveSync(websitePath, docsPath);
     localGroup.length = 0;
     localRequests.length = 0;
+    console.log(chalk.yellow(`Docs folder recreated (${docsPath})`));
 }
 
-export function run(port: number = 3333, mainURL: string = 'http://localhost:3000') {
+export function run(port: number = 3333, mainURL: string = 'http://localhost:3000', clean: boolean = false) {
 
     if (mainURL) {
         console.log(chalk.green(`Base URL form angular2 app: ${mainURL}`));
     }
 
-    if (!fs.existsSync(docsPath)) recreate();
+    if (!fs.existsSync(docsPath) || clean) recreate();
 
     try {
         localRequests = JSON.parse(fs.readFileSync(requestListPath, 'utf8').toString());

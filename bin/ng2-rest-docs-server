@@ -6,6 +6,7 @@ var fs = require('fs');
 
 var port;
 var baseURL;
+var clean = false;
 try {
     if (process.argv.length >= 3) {
         for (var i = 0; i < process.argv.length; i++) {
@@ -21,6 +22,12 @@ try {
             }
         }
         for (var i = 0; i < process.argv.length; i++) {
+            if (process.argv[i] === '--clean' || process.argv[i] === '-c' ) {
+                clean = true;
+                break;
+            }
+        }
+        for (var i = 0; i < process.argv.length; i++) {
             if (process.argv[i] === '-v' || process.argv[i] === '--version') {
                 var pack = JSON.parse(fs.readFileSync(__dirname + '/../package.json', 'utf8'));
                 console.log('version: ' + pack['version']);
@@ -31,4 +38,4 @@ try {
 } catch (error) {
     console.log(error)
 }
-run(port, baseURL);
+run(port, baseURL, clean);
