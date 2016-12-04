@@ -24,7 +24,6 @@ const msgPath = `${jsonsPath}/msg.txt`;
 const contractsPath = `${jsonsPath}/contracts`;
 const contractsZipPath = `${jsonsPath}/contracts/zip`;
 
-console.log('siemka czrnuszku')
 
 const groupListPath = `${jsonsPath}/groups.json`;
 let groupPath = (group: DocGroup) => {

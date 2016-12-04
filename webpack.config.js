@@ -1,6 +1,9 @@
 var webpack = require('webpack'),
     path = require('path'),
-    fs = require('fs');
+    fs = require('fs'),
+    WebpackStrip = require('strip-loader');
+
+var WebpackOnBuildPlugin = require('on-build-webpack');
 
 var nodeModules = {};
 fs.readdirSync('node_modules')
@@ -33,6 +36,16 @@ module.exports = {
         fs: "empty",
         __dirname: false,
         __filename: false
-    }
+    },
+    plugins: [
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {
+                warnings: false
+            }
+        }),
+        new WebpackOnBuildPlugin(function (stats) {
+            // Do whatever you want... 
+        }),
+    ]
 }
 

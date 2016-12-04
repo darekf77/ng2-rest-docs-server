@@ -2,13 +2,14 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ViewEncapsulation 
 import { Subscription } from 'rxjs';
 
 import { TranslatePipe } from 'ng2-translate/ng2-translate';
-import { DocGroup, DocModel, HttpMethod, DocExample } from 'ng2-rest/ng2-rest';
+import { DocGroup, DocModel } from './models';
 import { TAB_DIRECTIVES, TabDirective } from 'ng2-bootstrap/ng2-bootstrap';
 
 import { HighlightCodeDirective } from './highlight.directive';
-
+import { SearchPipe } from './search.pipe';
 import { JsonConfigService } from './json-config.service';
-
+import { debounceable } from './debounce';
+import { Helpers } from './helpers';
 
 function groupFiles(files: DocModel[]): DocGroup[] {
     let groups: DocGroup[] = [];
@@ -52,13 +53,16 @@ function mergeExamples(files: DocModel[]): DocModel[] {
     selector: 'start-page',
     template: require('./start-page.component.html'),
     styles: [require('./start-page.component.scss')],
-    pipes: [TranslatePipe],
+    pipes: [TranslatePipe, SearchPipe],
     providers: [JsonConfigService],
     directives: [HighlightCodeDirective, TAB_DIRECTIVES, TabDirective],
     encapsulation: ViewEncapsulation.None
 })
 export class StartPageComponent implements OnInit, OnDestroy {
     constructor(private config: JsonConfigService) { }
+
+    search_model: string = '';
+    phrase: string = '';
 
     msg: string;
     activeFile: DocModel;
@@ -89,8 +93,60 @@ export class StartPageComponent implements OnInit, OnDestroy {
         this.handlers.forEach(h => h.unsubscribe());
     }
 
+    private closeAll() {
+        this.groups.forEach(g => g.files.forEach(f => f.examples.forEach(e => e['isOpen'] = false)));
+    }
+
+    open(ex: DocModel) {
+        this.closeAll();
+        ex['isOpen'] = false;
+    }
+
+
+    isGroupPartialSelected(g: DocGroup): boolean {
+        let isSomethingEmpty = false;
+        let isSomethingSelected = false;
+        g.files.forEach(f => {
+            f.examples.forEach(e => {
+                if (e['isSelected']) {
+                    isSomethingSelected = true;
+                } else {
+                    isSomethingEmpty = true;
+                }
+                if (isSomethingEmpty && isSomethingSelected) return false;
+            });
+            if (isSomethingEmpty && isSomethingSelected) return false;
+        })
+        return isSomethingEmpty && isSomethingSelected;
+    }
+
+    isGroupFullSelected(g: DocGroup) {
+        let isFull = true;
+        g.files.forEach(f => {
+            f.examples.forEach(ex => {
+                if (!ex['isSelected']) {
+                    isFull = false;
+                    return false;
+                }
+            })
+            if (!isFull) return false;
+        })
+        return isFull;
+    }
+
+    @debounceable(100, undefined)
+    search() {
+        console.log('search')
+        this.phrase = this.search_model;
+    }
+
+    copy(d: DocModel) {
+        console.log('contract', d['contract'])
+        Helpers.copyToClipboard(d['contract']);
+    }
+
     cuttedUrl(file: DocModel) {
-        return file.baseURL ? file.url.replace(file.baseURL, '') : file.url;
+        return file.baseURLDocsServer ? file.url.replace(file.baseURLDocsServer, '') : file.url;
     }
 
     lastElemem;
@@ -132,7 +188,7 @@ export class StartPageComponent implements OnInit, OnDestroy {
     }
 
 
-    openExample(ex: DocExample) {
+    openExample(ex: DocModel) {
         if (!ex['isOpen']) {
             ex['isOpen'] = true;
         } else {
@@ -170,7 +226,7 @@ export class StartPageComponent implements OnInit, OnDestroy {
                 })
             })
         })
-        console.log('this.selected',selected);
+        console.log('this.selected', selected);
         this.config.model.downloadAll(selected).subscribe(link => {
             window.location.href = link;
         })

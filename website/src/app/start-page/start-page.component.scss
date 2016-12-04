@@ -107,3 +107,23 @@ th {
     top: 0px;
     right: 10px;
 }
+
+.copy-button {
+    position: absolute;
+    right: 50px;
+    top: 150px;
+    z-index: 9999;
+    opacity: 0.5;
+    &:hover {
+        opacity: 1.0;
+    }
+}
+
+
+#download {
+    font-size: 60%;
+}
+
+.opacityHalf {
+    opacity: 0.5;
+}

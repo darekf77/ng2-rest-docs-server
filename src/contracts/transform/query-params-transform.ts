@@ -31,7 +31,7 @@ export function transformQueryPrams(queryParams: UrlParams[] | any): string {
                     let value = urlp[p];
                     if (typeof value === 'object') value = JSON.stringify(value);
                     // console.log('value after', value)
-                    let reg = (urlp.regex !== undefined) ? urlp.regex.source : regexForAllCharacters();
+                    let reg = (urlp.regex !== undefined) ? urlp.regex : regexForAllCharacters();
                     rows.push(`\t\t\tparameter '${p}' : \n\t\t\tvalue(${CONSUMER}(matching('${reg}')),\n\t\t\tproducer('${value}')\n\t\t)\n`)
                     break;
                 }
