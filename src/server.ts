@@ -12,7 +12,7 @@ const chalk = require('chalk');
 import { DocModel, DocGroup, genereateDocsGroups } from './docs';
 import { Helpers } from './helpers';
 
-const websitePath = `${__dirname}/../website/dist`;
+const websitePath = `${__dirname}/website/dist`;
 
 const docsPath: string = `${process.cwd()}/docs`;
 const jsonsPath = `${docsPath}/json`;
@@ -24,6 +24,7 @@ const msgPath = `${jsonsPath}/msg.txt`;
 const contractsPath = `${jsonsPath}/contracts`;
 const contractsZipPath = `${jsonsPath}/contracts/zip`;
 
+console.log('siemka czrnuszku')
 
 const groupListPath = `${jsonsPath}/groups.json`;
 let groupPath = (group: DocGroup) => {

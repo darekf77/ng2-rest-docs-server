@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var run = require('../js/server').run;
+var run = require('../bundle.js').run;
 
 var fs = require('fs');
 
