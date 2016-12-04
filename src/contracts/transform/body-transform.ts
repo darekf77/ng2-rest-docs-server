@@ -16,8 +16,9 @@ import { PRODUCER, CONSUMER } from './consts';
  */
 export function bodyTransform(data: any, bindings?: FormInputBind[]): string {
 
+    console.log('bindings', bindings);
 
-    console.log('data', data);
+    // console.log('data', data);
 
     try {
         data = JSON.parse(data);
@@ -26,6 +27,11 @@ export function bodyTransform(data: any, bindings?: FormInputBind[]): string {
         return '';
     }
 
+    if (data instanceof Array) {
+        let arr: any[] = data;
+        if (arr.length === 0) return `[[ ]]`;
+        data = arr[0];
+    }
 
 
     if (bindings && bindings.length > 0) {
@@ -36,16 +42,18 @@ export function bodyTransform(data: any, bindings?: FormInputBind[]): string {
     prepareSimpleTypes(data);
     if (bindings && bindings.length > 0) {
         bindings.forEach(binding => {
-            let path = binding.path;
+            if (binding.length !== null) {
+                let path = binding.path;
 
-            let consumer = binding.temp;
-            let consumerString = consumer ? `${CONSUMER}('${consumer}'),` : '';
+                let consumer = binding.temp;
+                let consumerString = consumer ? `${CONSUMER}('${consumer}'),` : '';
 
-            let value = `\n${PathObject.fieldName(path)}:  
-                    $(
-                        ${consumerString} ${PRODUCER}(regex('${regexFromLength(binding.length)}')) 
-                    )\n`
-            PathObject.set(path, value, data);
+                let value = `\t\t\t\t${PathObject.fieldName(path)}:  
+                    \t\t\t$(
+                        \t\t\t\t${consumerString} ${PRODUCER}(regex('${regexFromLength(binding.length)}')) 
+                    \t\t\t)\n`
+                PathObject.set(path, value, data);
+            }
         })
     }
     prepareArraysAndObjects(data);
@@ -54,7 +62,7 @@ export function bodyTransform(data: any, bindings?: FormInputBind[]): string {
     for (let p in data) {
         s.push(data[p]);
     }
-    return s.join();
+    return 'body(\n\t\t' + s.join() + '\n\t\t)\n';
 }
 
 
@@ -110,7 +118,7 @@ export function prepareArraysAndObjects(data: Object) {
                     prepareArraysAndObjects(first);
                 }
                 else data[p] = `${p}: [[\n
-                    ${bodySimpelObjet(first)}\n
+                    \t\t${bodySimpelObjet(first)}\n
                 ]]\n`;
             } else {
                 data[p] = `${p}: [[]]`
@@ -149,10 +157,10 @@ export function prepareSimpleTypes(data: Object) {
         } else if (v instanceof Object) {
             prepareSimpleTypes(v);
         } else {
-            data[p] = `\n${p}: $(
-                ${CONSUMER}('${data[p]}'),
-                ${PRODUCER}(regex('${regexForAllCharacters()}'))
-            ) `;
+            data[p] = `\n\t\t${p}: $(
+                \t${CONSUMER}('${data[p]}'),
+                \t${PRODUCER}(regex('${regexForAllCharacters()}'))
+            \t) `;
         }
     }
     return data;

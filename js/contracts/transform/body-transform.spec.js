@@ -50,7 +50,7 @@ describe("Groovy syntax transformer body", function () {
             super: 'hihi'
         }), [
             { path: 'someth', length: 12, }
-        ]))).to.eq(transform_helper_1.clean("\n        someth: $(\n                consumer('aaa'),\n                producer(regex('" + transform_helper_1.regexFromLength(12) + "'))\n            ),\n        super: $(\n            consumer('hihi'),\n            producer(regex('" + transform_helper_1.regexForAllCharacters() + "'))\n        )\n    \n    "));
+        ]))).to.eq(transform_helper_1.clean("\n      body(\n        someth: $(\n                consumer('aaa'),\n                producer(regex('" + transform_helper_1.regexFromLength(12) + "'))\n            ),\n        super: $(\n            consumer('hihi'),\n            producer(regex('" + transform_helper_1.regexForAllCharacters() + "'))\n        )\n        )\n    "));
     });
 });
 //# sourceMappingURL=body-transform.spec.js.map

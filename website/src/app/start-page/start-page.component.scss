@@ -43,7 +43,7 @@ code {
 }
 
 
-.active {
+.activated {
     margin-bottom: 35px;
 }
 
@@ -81,4 +81,29 @@ th {
 .contract {
     display: block;
     width: 100%;
+}
+
+
+.common-tabs {
+    li.active {
+        a {
+            background: transparent !important;
+            text-decoration: underline !important;
+            color: #337ab7 !important;
+        }
+    }
+     li {
+        a {
+            padding: 0px;
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-bottom: 5px;
+        }
+    }
+}
+
+.checkbox {
+    position: absolute;
+    top: 0px;
+    right: 10px;
 }

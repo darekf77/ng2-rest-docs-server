@@ -11,13 +11,20 @@ var consts_1 = require('./consts');
  * @returns {string}
  */
 function bodyTransform(data, bindings) {
-    console.log('data', data);
+    console.log('bindings', bindings);
+    // console.log('data', data);
     try {
         data = JSON.parse(data);
     }
     catch (error) {
         console.error('string withou object in bodyTransform');
         return '';
+    }
+    if (data instanceof Array) {
+        var arr = data;
+        if (arr.length === 0)
+            return "[[ ]]";
+        data = arr[0];
     }
     if (bindings && bindings.length > 0) {
         bindings.forEach(function (binding) {
@@ -27,11 +34,13 @@ function bodyTransform(data, bindings) {
     prepareSimpleTypes(data);
     if (bindings && bindings.length > 0) {
         bindings.forEach(function (binding) {
-            var path = binding.path;
-            var consumer = binding.temp;
-            var consumerString = consumer ? consts_1.CONSUMER + "('" + consumer + "')," : '';
-            var value = "\n" + path_object_1.PathObject.fieldName(path) + ":  \n                    $(\n                        " + consumerString + " " + consts_1.PRODUCER + "(regex('" + transform_helper_1.regexFromLength(binding.length) + "')) \n                    )\n";
-            path_object_1.PathObject.set(path, value, data);
+            if (binding.length !== null) {
+                var path = binding.path;
+                var consumer = binding.temp;
+                var consumerString = consumer ? consts_1.CONSUMER + "('" + consumer + "')," : '';
+                var value = "\t\t\t\t" + path_object_1.PathObject.fieldName(path) + ":  \n                    \t\t\t$(\n                        \t\t\t\t" + consumerString + " " + consts_1.PRODUCER + "(regex('" + transform_helper_1.regexFromLength(binding.length) + "')) \n                    \t\t\t)\n";
+                path_object_1.PathObject.set(path, value, data);
+            }
         });
     }
     prepareArraysAndObjects(data);
@@ -39,7 +48,7 @@ function bodyTransform(data, bindings) {
     for (var p in data) {
         s.push(data[p]);
     }
-    return s.join();
+    return 'body(\n\t\t' + s.join() + '\n\t\t)\n';
 }
 exports.bodyTransform = bodyTransform;
 /**
@@ -96,7 +105,7 @@ function prepareArraysAndObjects(data) {
                     prepareArraysAndObjects(first);
                 }
                 else
-                    data[p] = p + ": [[\n\n                    " + bodySimpelObjet(first) + "\n\n                ]]\n";
+                    data[p] = p + ": [[\n\n                    \t\t" + bodySimpelObjet(first) + "\n\n                ]]\n";
             }
             else {
                 data[p] = p + ": [[]]";
@@ -140,7 +149,7 @@ function prepareSimpleTypes(data) {
             prepareSimpleTypes(v);
         }
         else {
-            data[p] = "\n" + p + ": $(\n                " + consts_1.CONSUMER + "('" + data[p] + "'),\n                " + consts_1.PRODUCER + "(regex('" + transform_helper_1.regexForAllCharacters() + "'))\n            ) ";
+            data[p] = "\n\t\t" + p + ": $(\n                \t" + consts_1.CONSUMER + "('" + data[p] + "'),\n                \t" + consts_1.PRODUCER + "(regex('" + transform_helper_1.regexForAllCharacters() + "'))\n            \t) ";
         }
     }
     return data;

@@ -16,11 +16,12 @@ export class JsonConfigService {
             let g = groupFilesName.trim()
                 .replace(/\s/g, '')
                 .toUpperCase();
-            return  this.http.get(`json/group-${g}.json`).map(r => r.json())
+            return this.http.get(`json/group-${g}.json`).map(r => r.json())
         },
         getMessage: () => this.http.get(`json/msg.txt`).map(r => {
             return r.text()
-        })
+        }),
+        downloadAll: (files: any[]) => this.http.post('/api/downloadall', files).map(r => r.text())
     };
 
 

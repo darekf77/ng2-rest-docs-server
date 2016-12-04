@@ -3,6 +3,7 @@ import fs = require('fs');
 import md5 = require('md5');
 import path = require('path');
 import methodOverride = require('method-override');
+const EasyZip = require('easy-zip').EasyZip;
 
 const cors = require('cors');
 const bodyParser = require('body-parser')
@@ -21,6 +22,7 @@ const requestListPath = `${jsonsPath}/requests.json`;
 const msgPath = `${jsonsPath}/msg.txt`;
 
 const contractsPath = `${jsonsPath}/contracts`;
+const contractsZipPath = `${jsonsPath}/contracts/zip`;
 
 
 const groupListPath = `${jsonsPath}/groups.json`;
@@ -45,6 +47,7 @@ function recreate(msg: string = '') {
     fs.mkdirSync(docsPath);
     fs.mkdirSync(jsonsPath);
     fs.mkdirSync(contractsPath);
+    fs.mkdirSync(contractsZipPath);
     fs.writeFileSync(msgPath, msg, 'utf8');
     Helpers.copyFolderRecursiveSync(websitePath, docsPath);
     localGroup.length = 0;
@@ -88,6 +91,27 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
         res.status(200).send();
     })
 
+    app.post('/api/downloadall', (req, res) => {
+        console.log('req.body', req.body);
+        if (req.body && req.body instanceof Array && req.body.length > 0) {
+            let zip = new EasyZip();
+            let time = (new Date()).getTime();
+            let p = `${contractsZipPath}/contracts-${time}`;
+            fs.mkdirSync(p);
+            req.body.forEach((f: string) => {
+                console.log('file', f);
+                fs.writeFileSync(`${p}/${path.basename(f)}`, fs.readFileSync(f, 'utf8'), 'utf8');
+            });
+            zip.zipFolder(p, () => {
+                zip.writeToFile(`${p}.zip`);
+                res.status(200).send(`json/contracts/zip/contracts-${time}.zip`);
+            });
+
+        } else {
+            res.status(400);
+        }
+    })
+
     app.post('/api/save', (req, res) => {
 
         let body: DocModel = req.body;
@@ -119,8 +143,10 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
             localGroup.forEach(g => {
                 g.files.forEach(f => {
                     let counter = 0;
-                    f.contracts.forEach(c => {
-                        fs.writeFileSync(`${contractsPath}/${f.name}-${md5(c)}${counter++}.groovy`, c, 'utf8');
+                    f.examples.forEach(c => {
+                        let p = `${contractsPath}/${f.name}-${md5(c.usecase)}${counter++}.groovy`;
+                        c.contractPath = p;
+                        fs.writeFileSync(p, c.contract, 'utf8');
                     });
                 })
                 fs.writeFileSync(groupPath(g), JSON.stringify(g), 'utf8');

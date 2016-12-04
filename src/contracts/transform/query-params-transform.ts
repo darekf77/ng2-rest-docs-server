@@ -6,7 +6,7 @@ import { PRODUCER, CONSUMER } from './consts';
 import { UrlParams } from '../models';
 
 export function transformQueryPrams(queryParams: UrlParams[] | any): string {
-    console.log('queryParams', queryParams)
+    // console.log('queryParams', queryParams)
 
     if (queryParams === undefined) return '';
 
@@ -20,6 +20,8 @@ export function transformQueryPrams(queryParams: UrlParams[] | any): string {
         }
     }
 
+    // console.log('queryParams after', queryParams)
+
     // when instance of urlParams[]
     if ((queryParams instanceof Array) && queryParams.length > 0) {
         let arr = <UrlParams[]>queryParams;
@@ -27,8 +29,10 @@ export function transformQueryPrams(queryParams: UrlParams[] | any): string {
             for (let p in urlp) {
                 if (p !== 'regex') {
                     let value = urlp[p];
+                    if (typeof value === 'object') value = JSON.stringify(value);
+                    // console.log('value after', value)
                     let reg = (urlp.regex !== undefined) ? urlp.regex.source : regexForAllCharacters();
-                    rows.push(`parameter '${p}' : value(${CONSUMER}(matching('${reg}')),producer('${value}')\n)`)
+                    rows.push(`\t\t\tparameter '${p}' : \n\t\t\tvalue(${CONSUMER}(matching('${reg}')),\n\t\t\tproducer('${value}')\n\t\t)\n`)
                     break;
                 }
             }
@@ -37,13 +41,14 @@ export function transformQueryPrams(queryParams: UrlParams[] | any): string {
         // when instance of old object
         for (let p in queryParams) {
             let value = queryParams[p];
-            rows.push(`parameter '${p}' : value(${CONSUMER}(matching('${regexForAllCharacters()}')),producer('${value}'))\n`)
+            if (typeof value === 'object') value = JSON.stringify(value);
+            rows.push(`\t\t\tparameter '${p}' : \n\t\t\tvalue(${CONSUMER}(matching('${regexForAllCharacters()}')),\n\t\t\tproducer('${value}')\n\t\t)\n`)
         }
     }
     if (rows.length === 0) return ``;
-    if (rows.length === 1) return `parameter {\n${rows[0]}}`;
-    if (rows.length === 2) return `parameter {\n${rows[0]}\n${rows[1]}}`;
+    if (rows.length === 1) return `queryParameters {\n${rows[0]}}`;
+    if (rows.length === 2) return `queryParameters {\n${rows[0]}\n${rows[1]}}`;
     let res = rows.join('');
-    return `queryParameters {\n${res}\n}`;
+    return `queryParameters {\n${res}\n\t\t}`;
 }
 

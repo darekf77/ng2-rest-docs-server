@@ -2,7 +2,9 @@
 var express = require('express');
 var fs = require('fs');
 var md5 = require('md5');
+var path = require('path');
 var methodOverride = require('method-override');
+var EasyZip = require('easy-zip').EasyZip;
 var cors = require('cors');
 var bodyParser = require('body-parser');
 var chalk = require('chalk');
@@ -14,6 +16,7 @@ var jsonsPath = docsPath + "/json";
 var requestListPath = jsonsPath + "/requests.json";
 var msgPath = jsonsPath + "/msg.txt";
 var contractsPath = jsonsPath + "/contracts";
+var contractsZipPath = jsonsPath + "/contracts/zip";
 var groupListPath = jsonsPath + "/groups.json";
 var groupPath = function (group) {
     var groupFileName = group.name
@@ -31,6 +34,7 @@ function recreate(msg) {
     fs.mkdirSync(docsPath);
     fs.mkdirSync(jsonsPath);
     fs.mkdirSync(contractsPath);
+    fs.mkdirSync(contractsZipPath);
     fs.writeFileSync(msgPath, msg, 'utf8');
     helpers_1.Helpers.copyFolderRecursiveSync(websitePath, docsPath);
     localGroup.length = 0;
@@ -68,6 +72,26 @@ function run(port, mainURL, clean) {
         console.log('started, with message');
         res.status(200).send();
     });
+    app.post('/api/downloadall', function (req, res) {
+        console.log('req.body', req.body);
+        if (req.body && req.body instanceof Array && req.body.length > 0) {
+            var zip_1 = new EasyZip();
+            var time_1 = (new Date()).getTime();
+            var p_1 = contractsZipPath + "/contracts-" + time_1;
+            fs.mkdirSync(p_1);
+            req.body.forEach(function (f) {
+                console.log('file', f);
+                fs.writeFileSync(p_1 + "/" + path.basename(f), fs.readFileSync(f, 'utf8'), 'utf8');
+            });
+            zip_1.zipFolder(p_1, function () {
+                zip_1.writeToFile(p_1 + ".zip");
+                res.status(200).send("json/contracts/zip/contracts-" + time_1 + ".zip");
+            });
+        }
+        else {
+            res.status(400);
+        }
+    });
     app.post('/api/save', function (req, res) {
         var body = req.body;
         if (!body) {
@@ -92,8 +116,10 @@ function run(port, mainURL, clean) {
             localGroup.forEach(function (g) {
                 g.files.forEach(function (f) {
                     var counter = 0;
-                    f.contracts.forEach(function (c) {
-                        fs.writeFileSync(contractsPath + "/" + f.name + "-" + md5(c) + counter++ + ".groovy", c, 'utf8');
+                    f.examples.forEach(function (c) {
+                        var p = contractsPath + "/" + f.name + "-" + md5(c.usecase) + counter++ + ".groovy";
+                        c.contractPath = p;
+                        fs.writeFileSync(p, c.contract, 'utf8');
                     });
                 });
                 fs.writeFileSync(groupPath(g), JSON.stringify(g), 'utf8');

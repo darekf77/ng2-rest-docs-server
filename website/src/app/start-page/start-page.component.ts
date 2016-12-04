@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ViewEncapsulation } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { TranslatePipe } from 'ng2-translate/ng2-translate';
 import { DocGroup, DocModel, HttpMethod, DocExample } from 'ng2-rest/ng2-rest';
+import { TAB_DIRECTIVES, TabDirective } from 'ng2-bootstrap/ng2-bootstrap';
 
 import { HighlightCodeDirective } from './highlight.directive';
 
@@ -53,7 +54,8 @@ function mergeExamples(files: DocModel[]): DocModel[] {
     styles: [require('./start-page.component.scss')],
     pipes: [TranslatePipe],
     providers: [JsonConfigService],
-    directives: [HighlightCodeDirective]
+    directives: [HighlightCodeDirective, TAB_DIRECTIVES, TabDirective],
+    encapsulation: ViewEncapsulation.None
 })
 export class StartPageComponent implements OnInit, OnDestroy {
     constructor(private config: JsonConfigService) { }
@@ -142,9 +144,36 @@ export class StartPageComponent implements OnInit, OnDestroy {
     removeReturn(s: string) {
 
         let t = decodeURIComponent(s).replace(/\\n/g, '\n')
-        return t.slice(1, t.length - 1);
+        return t; // rreturn t.slice(1, t.length - 1);
     }
 
 
+    get selected() {
+        let selected = [];
+        this.groups.forEach(g => {
+            g.files.forEach(f => {
+                f.examples.forEach(ex => {
+                    if (ex['isSelected']) selected.push(ex);
+                })
+            })
+        })
+        return selected;
+    }
+
+
+    downloadAll() {
+        let selected = [];
+        this.groups.forEach(g => {
+            g.files.forEach(f => {
+                f.examples.forEach(ex => {
+                    if (ex['isSelected']) selected.push(ex['contractPath']);
+                })
+            })
+        })
+        console.log('this.selected',selected);
+        this.config.model.downloadAll(selected).subscribe(link => {
+            window.location.href = link;
+        })
+    }
 
 }

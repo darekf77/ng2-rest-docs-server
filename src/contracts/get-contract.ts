@@ -14,34 +14,41 @@ export function getContract(ex: DocModel): string {
     let c: SpringContract = <SpringContract>{};
     c.requestBody = bodyTransform(ex.bodySend, ex.form);
     c.responseBody = bodyTransform(ex.bodyRecieve);
-    // c.headers = transformHeaders(ex.form);
+    c.headers = transformHeaders(ex.headers);
+    // console.log('ex.headers', ex.headers);
+    // console.log('c.headers', c.headers);
     c.queryParams = transformQueryPrams(ex.urlParams);
     c.method = ex.method;
     c.status = ex.status;
     c.url = ex.url.replace(ex.baseURLDocsServer, '');
-    let res = JSON.stringify(contractGenerator(c));
-    console.log('------------------------------------------------')
-    console.log(res);
+    let res = contractGenerator(c);
+    // console.log('------------------------------------------------')
+    // console.log(res);
     return res;
 }
 
 
 function contractGenerator(contract: SpringContract) {
 
-    return encodeURIComponent(`org.springframework.cloud.contract.spec.Contract.make {
+    return `
+    package contracts
+
+    org.springframework.cloud.contract.spec.Contract.make {
         request {
             urlPath('${contract.url}') {
                 ${contract.queryParams}                
             }
             method ${contract.method}
-            ${contract.headers}
             ${contract.requestBody}
         }
         response {
-            status ${contract.status}
+            status: '${contract.status}'
             ${contract.responseBody}
         }
-    }`);
+        ${contract.headers}
+    }
+    
+    `;
 
 }
 

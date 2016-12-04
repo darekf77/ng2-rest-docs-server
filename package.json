@@ -1,6 +1,6 @@
 {
   "name": "ng2-rest-docs-server",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "Generate docs for angular 2 app with ng2-rest lib in easy way",
   "main": "karma.conf.js",
   "directories": {
@@ -13,6 +13,7 @@
     "body-parser": "^1.15.2",
     "chalk": "^1.1.3",
     "cors": "^2.8.1",
+    "easy-zip": "0.0.4",
     "express": "^4.14.0",
     "lodash": "^4.17.2",
     "md5": "^2.2.1",

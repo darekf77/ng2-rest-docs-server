@@ -100,6 +100,7 @@ describe("Groovy syntax transformer body", function () {
       }), [
         { path: 'someth', length: 12, }
       ]))).to.eq(clean(`
+      body(
         someth: $(
                 consumer('aaa'),
                 producer(regex('${regexFromLength(12)}'))
@@ -108,7 +109,7 @@ describe("Groovy syntax transformer body", function () {
             consumer('hihi'),
             producer(regex('${regexForAllCharacters()}'))
         )
-    
+        )
     `))
   })
 

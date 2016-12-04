@@ -17,9 +17,9 @@ describe("Groovy syntax transformer queryParams", function () {
             dd: false
         }))).to.eq(clean(`
                 queryParameters {
-                    parameter 'limit' : value(consumer(matching(".+")), producer('100'))
-                    parameter 'where' : value(consumer(matching(".+")), producer('somewhere'))
-                    parameter 'dd' : value(consumer(matching(".+")), producer('false'))
+                    parameter 'limit' : value(consumer(matching('.+')), producer('100'))
+                    parameter 'where' : value(consumer(matching('.+')), producer('somewhere'))
+                    parameter 'dd' : value(consumer(matching('.+')), producer('false'))
                 }        
             `))
     })
@@ -32,12 +32,29 @@ describe("Groovy syntax transformer queryParams", function () {
             { 'dd': false, regex: new RegExp('d{2}') },
         ]))).to.eq(clean(`
                 queryParameters {
-                    parameter 'limit' : value(consumer(matching(".+")), producer('100'))
-                    parameter 'where' : value(consumer(matching(".+")), producer('somewhere'))
-                    parameter 'dd' : value(consumer(matching("d{2}")), producer('false'))
+                    parameter 'limit' : value(consumer(matching('.+')), producer('100'))
+                    parameter 'where' : value(consumer(matching('.+')), producer('somewhere'))
+                    parameter 'dd' : value(consumer(matching('d{2}')), producer('false'))
                 }        
             `))
     })
+
+    it('shoud transform nested objects', () => {
+        expect(clean(transformQueryPrams(<UrlParams[]>[
+            { 'limit': 100 },
+            {
+                'ins': {
+                    name: 'dd'
+                }
+            }
+        ]))).to.eq(clean(`
+                queryParameters {
+                    parameter 'limit' : value(consumer(matching('.+')), producer('100'))
+                    parameter 'ins' : value(consumer(matching('.+')), producer('{"name":"dd"}'))
+                }        
+            `))
+    })
+
 
 });
 
