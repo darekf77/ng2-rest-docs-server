@@ -8,8 +8,11 @@ const EasyZip = require('easy-zip').EasyZip;
 const cors = require('cors');
 const bodyParser = require('body-parser')
 const chalk = require('chalk');
+import http = require('http')
 
 import { DocModel, DocGroup, genereateDocsGroups } from './docs';
+import { getJSON } from './http';
+import { JiraAuth, JiraTask } from './jira';
 import { Helpers } from './helpers';
 
 const websitePath = `${__dirname}/website/dist`;
@@ -36,11 +39,14 @@ let groupPath = (group: DocGroup) => {
     return `${jsonsPath}/group-${groupFileName}.json`;
 }
 
-
+export function getToken(auth): string {
+    return btoa(`${auth.username}:${auth.password}`);
+}
 
 export const filePrefix = 'url';
 let localGroup: DocGroup[] = [];
 let localRequests: DocModel[] = [];
+
 
 
 
@@ -51,6 +57,12 @@ function recreate(msg: string = '') {
     fs.mkdirSync(contractsPath);
     fs.mkdirSync(contractsZipPath);
     fs.mkdirSync(jiraPath);
+    let tt = {
+        url: 'http://jira.eniro.com',
+        token: 'ZGFmaTUxOkphYmxvbmthMTc=',
+        models: []
+    };
+    fs.writeFileSync(jiraConfigPath, JSON.stringify(tt), 'utf8');
     fs.writeFileSync(msgPath, msg, 'utf8');
     Helpers.copyFolderRecursiveSync(websitePath, docsPath);
     localGroup.length = 0;
@@ -58,7 +70,12 @@ function recreate(msg: string = '') {
     console.log(chalk.yellow(`Docs folder recreated (${docsPath})`));
 }
 
-export function run(port: number = 3333, mainURL: string = 'http://localhost:3000', clean: boolean = false) {
+export function run(port: number = 3333,
+    mainURL: string = 'http://localhost:3000',
+    clean: boolean = false,
+    jiraUrl: string = undefined,
+    jiraAuth: JiraAuth = undefined
+) {
 
     if (mainURL) {
         console.log(chalk.green(`Base URL form angular2 app: ${mainURL}`));
@@ -92,6 +109,48 @@ export function run(port: number = 3333, mainURL: string = 'http://localhost:300
         recreate(req.params['msg']);
         console.log('started, with message');
         res.status(200).send();
+    })
+
+    app.get('/api/cross/get/:website/:path', (req, res) => {
+
+        let websiteUrl = decodeURIComponent(req.params['website']);
+        let websitePath = decodeURIComponent(req.params['path']);
+        console.log('websiteUrl', websiteUrl);
+        console.log('websitePath', websitePath);
+        let authorizaiton = req.headers['authorization'];
+        console.log('authorizaiton', authorizaiton);
+        // console.log('websiteHeaders', JSON.stringify(req.headers));
+        var options = {
+
+            hostname: websiteUrl,
+            path: websitePath,
+            method: 'GET',
+            port: 443,
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: req.headers['authorization']
+            }
+        };
+
+        getJSON(options, function (statusCode, result) {
+            // I could work with the result html/json here.  I could also just return it
+            console.log("onResult: (" + statusCode + ")" + JSON.stringify(result));
+            res.statusCode = statusCode;
+            res.send(result);
+        })
+
+
+    })
+
+    app.post('/api/config', (req, res) => {
+        let token = getToken(jiraAuth);
+        if (res.get('Authorization') === `Basic ${token}`) {
+            let data = fs.readFileSync(jiraConfigPath, 'utf8');
+            res.send(200, JSON.stringify(data))
+        } else {
+            res.status(400).send();
+        }
+
     })
 
     app.post('/api/downloadall', (req, res) => {

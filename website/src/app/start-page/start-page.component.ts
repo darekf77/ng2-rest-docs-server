@@ -11,6 +11,7 @@ import { JsonConfigService } from './json-config.service';
 import { debounceable } from './debounce';
 import { Helpers } from './helpers';
 import { JiraService, JiraAuth, JiraTask } from '../jira';
+import { JiraConfig } from './jira-config';
 
 @Component({
     selector: 'start-page',
@@ -26,7 +27,7 @@ export class StartPageComponent implements OnInit, OnDestroy {
 
     search_model: string = '';
     phrase: string = '';
-
+    configJira: JiraConfig;
     msg: string;
     activeFile: DocModel;
     groups: DocGroup[] = [];
@@ -46,7 +47,7 @@ export class StartPageComponent implements OnInit, OnDestroy {
 
     getGroups(names: string[]) {
         if (names.length === 0) {
-            this.prepreTasks();
+            this.getJiraConfig();
             return;
         };
         this.handlers.push(this.config.model.getGroup(names.pop()).subscribe(group => {
@@ -55,20 +56,56 @@ export class StartPageComponent implements OnInit, OnDestroy {
         }))
     }
 
-    getStatus(key: string) {
-        return this.jira.getStatusByKey(key, 'http://jira.eniro.com', 'ZGFmaTUxOkphYmxvbmthMTc=');
+    bindJiraData(d: DocModel) {
+        let f = this.configJira.models.filter(m => {
+            return (m.usecase === d.usecase &&
+                m.method === d.method &&
+                m.urlFull === d.url &&
+                m.group == d.group
+            );
+        });
+        if (f.length > 0) {
+            let first = f[0];
+            d.jiraKey = first.jiraKey;
+        }
+        // TODO is this super correct ?
     }
 
+
+    getJiraConfig() {
+        this.config.model.getJiraConfig().subscribe(c => {
+            console.log('new config jira', c);
+            if (c !== undefined) {
+                this.configJira = c;
+                if (this.configJira.models && this.configJira.models.length > 0) {
+                    this.groups.forEach(g => {
+                        g.files.forEach(f => {
+                            this.bindJiraData(f);
+                            if (f.examples && f.examples.length > 0) {
+                                f.examples.forEach(ex => this.bindJiraData(ex));
+                            }
+                        })
+                    })
+                    this.prepreTasks();
+                }
+            }
+        });
+    }
+
+
+    getStatus(key: string) {
+        key = encodeURIComponent(key);
+        return this.jira.getStatusByKey(key, this.configJira.url, this.configJira.token);
+        // 'http://jira.eniro.com', 'ZGFmaTUxOkphYmxvbmthMTc='
+    }
+
+
     prepareDoc(d: DocModel) {
-        let DEF_JIRA_STATUS = '-';
-        let isGoodJiraKey = (!d.jiraKey && d.jiraKey !== '');
-
-
-        if (isGoodJiraKey) {
-            d.jiraStatus = DEF_JIRA_STATUS;
-        }
-        if (isGoodJiraKey && !d.jiraStatus && d.jiraStatus !== DEF_JIRA_STATUS) {
+        console.log(`preparing statuses for key: ${d.jiraKey}`)
+        if (d.jiraKey && d.jiraKey.trim() !== '') {
+            console.log('send request');
             this.getStatus(d.jiraKey).subscribe(s => {
+                console.log('Data from jira', s);
                 if (s.fields &&
                     s.fields.status &&
                     s.fields.status.statusCategory &&
@@ -79,8 +116,11 @@ export class StartPageComponent implements OnInit, OnDestroy {
                     d.jiraStatus = '-- Wrong Status --';
                 }
             });
+        } else {
+            d.jiraStatus = '';
         }
-        if (d.examples && d.examples.length > 0 && d.examples.filter(e => !e.jiraStatus && e.jiraStatus !== DEF_JIRA_STATUS).length) {
+
+        if (d.examples && d.examples.filter(e => e.jiraKey && e.jiraKey.trim() !== '').length > 0) {
             d.examples.forEach(ex => {
                 this.prepareDoc(ex);
             });

@@ -135,3 +135,12 @@ th {
 .opacityHalf {
     opacity: 0.5;
 }
+
+.jira-status {
+    display: inline-block;
+    input {
+        width: 150px;
+        outline: none;
+        border: none;
+    }
+}

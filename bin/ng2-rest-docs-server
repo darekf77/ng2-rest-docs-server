@@ -7,6 +7,7 @@ var fs = require('fs');
 var port;
 var baseURL;
 var clean = false;
+var jira = '';
 try {
     if (process.argv.length >= 3) {
         for (var i = 0; i < process.argv.length; i++) {
@@ -22,8 +23,14 @@ try {
             }
         }
         for (var i = 0; i < process.argv.length; i++) {
-            if (process.argv[i] === '--clean' || process.argv[i] === '-c' ) {
+            if (process.argv[i] === '--clean' || process.argv[i] === '-c') {
                 clean = true;
+                break;
+            }
+        }
+        for (var i = 0; i < process.argv.length; i++) {
+            if (process.argv[i] === '--jira' || process.argv[i] === '-l') {
+                jira = process.argv[i + 1];
                 break;
             }
         }
@@ -38,4 +45,11 @@ try {
 } catch (error) {
     console.log(error)
 }
-run(port, baseURL, clean);
+
+var urlSplit = jira.split('@');
+var jiraUrl = urlSplit.length > 1 ? urlSplit[1] : undefined;
+var authSplit = (urlSplit.length > 1) ? urlSplit[1] : undefined;
+var jiraAuth = (authSplit !== undefined) ? authSplit.split(':') : undefined;
+jiraAuth = (jiraAuth && jiraAuth.length > 1) ? ({ username: jiraAuth[0], password: jiraAuth[1] }) : {};
+
+run(port, baseURL, clean, jiraUrl, jiraAuth);
