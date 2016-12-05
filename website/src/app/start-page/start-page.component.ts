@@ -134,6 +134,83 @@ export class StartPageComponent implements OnInit, OnDestroy {
         return isFull;
     }
 
+    isEndpointPartialSelected(f: DocModel): boolean {
+        let isSomethingEmpty = false;
+        let isSomethingSelected = false;
+        // g.files.forEach(f => {
+        f.examples.forEach(e => {
+            if (e['isSelected']) {
+                isSomethingSelected = true;
+            } else {
+                isSomethingEmpty = true;
+            }
+            if (isSomethingEmpty && isSomethingSelected) return false;
+        });
+        // if (isSomethingEmpty && isSomethingSelected) return false;
+        // })
+        return isSomethingEmpty && isSomethingSelected;
+    }
+
+    isEndpointFullSelected(f: DocModel) {
+        let isFull = true;
+        // g.files.forEach(f => {
+        f.examples.forEach(ex => {
+            if (!ex['isSelected']) {
+                isFull = false;
+                return false;
+            }
+        })
+        //     if (!isFull) return false;
+        // })
+        return isFull;
+    }
+
+    markFile(f: DocModel) {
+        f.examples.forEach(ex => {
+            ex['isSelected'] = true;
+        })
+    }
+
+    unmarkFile(f: DocModel) {
+        f.examples.forEach(ex => {
+            ex['isSelected'] = false;
+        })
+    }
+
+    markGroup(g: DocGroup) {
+        g.files.forEach(f => this.markFile(f));
+    }
+
+    unmarkGroup(g: DocGroup) {
+        g.files.forEach(f => this.unmarkFile(f));
+    }
+
+    fileChange(g: DocModel, isSelected: boolean) {
+        if (isSelected) {
+            this.unmarkFile(g);
+        } else {
+            this.markFile(g);
+        }
+    }
+
+    groupChange(g: DocGroup, isSelected: boolean) {
+
+        if (isSelected) {
+            this.unmarkGroup(g);
+        } else {
+            this.markGroup(g);
+        }
+    }
+
+    markAll() {
+        this.groups.forEach(g => this.markGroup(g));
+    }
+
+    unmarkAll() {
+        this.groups.forEach(g => this.unmarkGroup(g));
+    }
+
+
     @debounceable(100, undefined)
     search() {
         console.log('search')
@@ -231,5 +308,7 @@ export class StartPageComponent implements OnInit, OnDestroy {
             window.location.href = link;
         })
     }
+
+
 
 }

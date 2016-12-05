@@ -5,11 +5,20 @@
     "command": "npm",
     "isShellCommand": true,
     "showOutput": "always",
-    "suppressTaskName": true,
     "tasks": [
         {
             "taskName": "hmr",
-            "args": ["run","watch:dev:hmr"],
+            "args": [
+                "run",
+                "server:dev:hmr"
+            ]
+        },
+        {
+            "taskName": "watch",
+            "args": [
+                "run",
+                "watch:dev:hmr"
+            ],
             "isBuildCommand": true
         }
     ]

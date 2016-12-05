@@ -108,6 +108,11 @@ th {
     right: 10px;
 }
 
+.checkbox-in-group {
+    display: inline;
+    position: relative;
+}
+
 .copy-button {
     position: absolute;
     right: 50px;
@@ -122,6 +127,9 @@ th {
 
 #download {
     font-size: 60%;
+    max-height: 200px;
+    overflow: scroll;
+    margin-bottom: 0px;
 }
 
 .opacityHalf {

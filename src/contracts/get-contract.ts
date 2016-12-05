@@ -30,23 +30,25 @@ export function getContract(ex: DocModel): string {
 
 function contractGenerator(contract: SpringContract) {
 
-    return `
-    package contracts
-
-    org.springframework.cloud.contract.spec.Contract.make {
-        request {
-            urlPath('${contract.url}') {
+    let url = (contract.queryParams && contract.queryParams.trim() !== '') ? `urlPath('${contract.url}') {
                 ${contract.queryParams}                
-            }
-            method ${contract.method}
-            ${contract.requestBody}
-        }
-        response {
-            status: '${contract.status}'
-            ${contract.responseBody}
-        }
-        ${contract.headers}
+            }`: `url '${contract.url}'\n`
+
+    return `
+package contracts
+
+org.springframework.cloud.contract.spec.Contract.make {
+    request {
+        ${url}
+        method ${contract.method}
+        ${contract.requestBody}
     }
+    response {
+        status: '${contract.status}'
+        ${contract.responseBody}
+    }
+    ${contract.headers}
+}
     
     `;
 

@@ -10,7 +10,7 @@
         <br>
 
         <h4 *ngIf="selected && selected.length > 0">{{selected.length}} contracts files to download </h4>
-        <div class="list-group" id="download" *ngIf="selected && selected.length > 0">
+        <div class="list-group" id="download" *ngIf="selected && selected.length > 0"  >
             <a href="#{{ex.group}}" class="list-group-item" *ngFor="let ex of selected">
                 <div class="row">
                     <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
@@ -24,15 +24,17 @@
                     </div>
                 </div>
             </a>
-            <button type="button" class="btn btn-success" (click)="downloadAll()">
+        </div>
+        <button *ngIf="selected && selected.length > 0" type="button" class="btn btn-success" (click)="downloadAll()">
                 <span class="glyphicon glyphicon-cloud-download"></span>
                 download all</button>
-        </div>
 
         <br>
+        <br>
 
-        <input type="search" [(ngModel)]="search_model" (ngModelChange)='search($event)' class="form-control" value="" required="required"
-            placeholder="Search in contracts">
+        <input type="search" [(ngModel)]="search_model" (ngModelChange)='search($event)' 
+        class="form-control" value="" required="required"
+            placeholder="Search in docs">
 
 
 
@@ -42,7 +44,8 @@
     <table class="table table-hover">
         <thead *ngIf="groups && groups.length > 0">
             <tr>
-                <th>URL</th>
+                <th>URL                    
+                </th>
                 <th class="name">NAME</th>
             </tr>
         </thead>
@@ -56,14 +59,25 @@
         <tbody *ngFor="let group of groups | searchcontracts:phrase" id="{{group.name}}">
             <tr> <strong>  {{group.name}} </strong>
 
-                <div class="checkbox">
+                <div class="checkbox-in-group" [ngClass]="{'opacityHalf': isGroupPartialSelected(group)}">
                     <label>
-                        <input type="checkbox"  [ngModel]="isGroupFullSelected(group)"  [ngClass]="{'opacityHalf': isGroupPartialSelected(group)}"   (click)="$event.stopPropagation()"  >
+                        <input type="checkbox"  [ngModel]="isGroupFullSelected(group) || isGroupPartialSelected(group)" 
+                        (change)="groupChange(group,isGroupFullSelected(group))"
+                          (click)="$event.stopPropagation()"  >
                     </label>
                 </div>
             </tr>
             <tr *ngFor="let file of group.files" (click)="selectFile(file, $event)" [ngClass]="{'activated': (activeFile && activeFile === file) }">
-                <td class="url method">{{cuttedUrl(file)}}</td>
+                <td class="url method">{{cuttedUrl(file)}}
+                    <div class="checkbox-in-group" [ngClass]="{'opacityHalf': isEndpointPartialSelected(file)}">
+                        <label>
+                        <input type="checkbox"  [ngModel]="isEndpointFullSelected(file) || isEndpointPartialSelected(file)" 
+                        (change)="fileChange(file, isEndpointFullSelected(file) )"  
+                          (click)="$event.stopPropagation()"  >
+                    </label>
+                    </div>
+
+                </td>
                 <td class="name">{{file.name}}</td>
                 <div class="description" (click)="$event.stopPropagation()" *ngIf="activeFile && activeFile === file">
 
