@@ -10,56 +10,19 @@ import { SearchPipe } from './search.pipe';
 import { JsonConfigService } from './json-config.service';
 import { debounceable } from './debounce';
 import { Helpers } from './helpers';
-
-function groupFiles(files: DocModel[]): DocGroup[] {
-    let groups: DocGroup[] = [];
-    files.forEach(f => {
-        if (f.group === undefined) f.group = '-- undefined --';
-        console.log(f.group);
-        let a = groups.filter(g => g.name === f.group);
-        if (a.length === 0) {
-            groups.push({
-                name: f.group,
-                files: JSON.parse(JSON.stringify(
-                    files.filter(ff => ff.group === f.group)))
-            });
-        }
-    });
-    return groups;
-}
-
-function mergeExamples(files: DocModel[]): DocModel[] {
-    let tmpFiles: DocModel[] = [];
-    files.forEach(f => {
-        let a = tmpFiles.filter(d => d.url === f.url);
-        if (a.length === 0) {
-            let docM: DocModel = JSON.parse(JSON.stringify(f));
-            docM.examples = [];
-            docM.examples.push(JSON.parse(JSON.stringify(f)));
-            // TODO remove some shit from docM
-            tmpFiles.push(docM);
-
-        } else {
-            console.log('aaa', a);
-            a[0].examples.push(JSON.parse(JSON.stringify(f)));
-            // TODO remove some shit from a[0]
-        }
-    });
-    return tmpFiles;
-}
-
+import { JiraService, JiraAuth, JiraTask } from '../jira';
 
 @Component({
     selector: 'start-page',
     template: require('./start-page.component.html'),
     styles: [require('./start-page.component.scss')],
     pipes: [TranslatePipe, SearchPipe],
-    providers: [JsonConfigService],
+    providers: [JsonConfigService, JiraService],
     directives: [HighlightCodeDirective, TAB_DIRECTIVES, TabDirective],
     encapsulation: ViewEncapsulation.None
 })
 export class StartPageComponent implements OnInit, OnDestroy {
-    constructor(private config: JsonConfigService) { }
+    constructor(private config: JsonConfigService, private jira: JiraService) { }
 
     search_model: string = '';
     phrase: string = '';
@@ -82,11 +45,54 @@ export class StartPageComponent implements OnInit, OnDestroy {
     }
 
     getGroups(names: string[]) {
-        if (names.length === 0) return;
+        if (names.length === 0) {
+            this.prepreTasks();
+            return;
+        };
         this.handlers.push(this.config.model.getGroup(names.pop()).subscribe(group => {
             this.groups.push(group);
             this.getGroups(names);
         }))
+    }
+
+    getStatus(key: string) {
+        return this.jira.getStatusByKey(key, 'http://jira.eniro.com', 'ZGFmaTUxOkphYmxvbmthMTc=');
+    }
+
+    prepareDoc(d: DocModel) {
+        let DEF_JIRA_STATUS = '-';
+        let isGoodJiraKey = (!d.jiraKey && d.jiraKey !== '');
+
+
+        if (isGoodJiraKey) {
+            d.jiraStatus = DEF_JIRA_STATUS;
+        }
+        if (isGoodJiraKey && !d.jiraStatus && d.jiraStatus !== DEF_JIRA_STATUS) {
+            this.getStatus(d.jiraKey).subscribe(s => {
+                if (s.fields &&
+                    s.fields.status &&
+                    s.fields.status.statusCategory &&
+                    s.fields.status.statusCategory.name) {
+
+                    d.jiraStatus = s.fields.status.statusCategory.name;
+                } else {
+                    d.jiraStatus = '-- Wrong Status --';
+                }
+            });
+        }
+        if (d.examples && d.examples.length > 0 && d.examples.filter(e => !e.jiraStatus && e.jiraStatus !== DEF_JIRA_STATUS).length) {
+            d.examples.forEach(ex => {
+                this.prepareDoc(ex);
+            });
+        }
+    }
+
+    prepreTasks() {
+        this.groups.forEach(g => {
+            g.files.forEach(f => {
+                this.prepareDoc(f);
+            });
+        })
     }
 
     ngOnDestroy() {

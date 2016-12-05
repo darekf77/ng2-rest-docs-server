@@ -20,6 +20,8 @@ const jsonsPath = `${docsPath}/json`;
 const requestListPath = `${jsonsPath}/requests.json`;
 
 const msgPath = `${jsonsPath}/msg.txt`;
+const jiraPath = `${jsonsPath}/jira`;
+const jiraConfigPath = `${jsonsPath}/jira/config.json`;
 
 const contractsPath = `${jsonsPath}/contracts`;
 const contractsZipPath = `${jsonsPath}/contracts/zip`;
@@ -48,6 +50,7 @@ function recreate(msg: string = '') {
     fs.mkdirSync(jsonsPath);
     fs.mkdirSync(contractsPath);
     fs.mkdirSync(contractsZipPath);
+    fs.mkdirSync(jiraPath);
     fs.writeFileSync(msgPath, msg, 'utf8');
     Helpers.copyFolderRecursiveSync(websitePath, docsPath);
     localGroup.length = 0;

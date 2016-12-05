@@ -4,21 +4,16 @@
     "version": "0.1.0",
     "command": "npm",
     "isShellCommand": true,
+    "suppressTaskName": true,
     "showOutput": "always",
     "tasks": [
         {
             "taskName": "hmr",
-            "args": [
-                "run",
-                "server:dev:hmr"
-            ]
+            "args": [ "run", "server:dev:hmr" ]
         },
         {
             "taskName": "watch",
-            "args": [
-                "run",
-                "watch:dev:hmr"
-            ],
+            "args": [ "run", "watch:dev:hmr" ],
             "isBuildCommand": true
         }
     ]

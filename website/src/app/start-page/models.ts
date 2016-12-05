@@ -39,7 +39,12 @@ export interface DocsServerSide {
     baseURLDocsServer: string;
 };
 
-export interface DocModel extends RequestData, RequestMetaData, DocsServerSide {
+export interface JiraTask {
+    jiraKey: string;
+    jiraStatus: string;
+}
+
+export interface DocModel extends RequestData, RequestMetaData, DocsServerSide, JiraTask {
     form: FormInputBind[];
     contract: string;
     contractPath: string;
