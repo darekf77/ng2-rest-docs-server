@@ -81,7 +81,7 @@ export function run(port: number = 3333,
         console.log(chalk.green(`Base URL form angular2 app: ${mainURL}`));
     }
 
-    if (!fs.existsSync(docsPath) || clean) recreate();
+    if (!fs.existsSync(docsPath) || clean) recreate('- PROJECT NAME HERE -');
 
     try {
         localRequests = JSON.parse(fs.readFileSync(requestListPath, 'utf8').toString());
@@ -241,8 +241,6 @@ function existInLocalRequests(body: DocModel) {
             r.urlFull === body.urlFull &&
             r.method === body.method &&
             r.usecase === body.usecase &&
-            r.bodyRecieve === body.bodyRecieve &&
-            r.bodySend === body.bodySend &&
             r.group === body.group
         )
     })
