@@ -40,7 +40,7 @@ let groupPath = (group: DocGroup) => {
 }
 
 export function getToken(auth): string {
-    return btoa(`${auth.username}:${auth.password}`);
+    return new Buffer(`${auth.username}:${auth.password}`).toString('base64');
 }
 
 export const filePrefix = 'url';
@@ -142,13 +142,21 @@ export function run(port: number = 3333,
 
     })
 
-    app.post('/api/config', (req, res) => {
+    app.post('/api/config/jira', (req, res) => {
+        // console.log('sav jria config', JSON.stringify(jiraAuth) )
         let token = getToken(jiraAuth);
-        if (res.get('Authorization') === `Basic ${token}`) {
-            let data = fs.readFileSync(jiraConfigPath, 'utf8');
-            res.send(200, JSON.stringify(data))
+        // console.log('token', token)
+        // console.log('header',req.headers)
+        let auth = req.headers['authorization'];
+        console.log('auth', auth)
+        if (auth === `Basic ${token}`) {
+            let newConfig = req.body;
+            console.log('newConfig', JSON.stringify(newConfig) )
+            fs.writeFileSync(jiraConfigPath, JSON.stringify(newConfig), 'utf8');
+            res.status(200).send(JSON.stringify(newConfig))
         } else {
-            res.status(400).send();
+            console.log('bad authoriation')
+            res.sendStatus(400);
         }
 
     })

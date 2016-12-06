@@ -12,6 +12,6 @@ export interface JiraAuth {
  * @returns {string}
  */
 export function getToken(auth: JiraAuth): string {
-    return btoa(`${auth.username}:${auth.password}`);
+    return new Buffer(`${auth.username}:${auth.password}`).toString('base64');
 }
 

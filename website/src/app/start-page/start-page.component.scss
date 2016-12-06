@@ -159,23 +159,52 @@ th {
         width: 150px;
         outline: none;
         border: none;
+        position: absolute;
+        top: 5px;
+        right: 52px;
     }
 }
 
 .status-task {
     border-radius: 5px;
+    border: 3px solid black;
+    background: lightgray;
 }
 
 .status-in-progress {
-    @extend .status-task;
     border: 3px solid lightgray;
     background: lightgray;    
 }
 
 .status-to-do {
-    @extend .status-task;
     border: 3px solid black;
     background: linen;    
+}
+
+.status-closed {
+    border: 3px solid darkgray;
+    background: lightgreen;
+}
+
+.status-blocked {
+    border: 3px solid darkgray;
+    background: orange;
+}
+
+.status-blocked {
+    border: 3px solid darkgray;
+    background: darkblue;
+    color: white;    
+}
+
+.status-code-review {
+    border: 3px solid black;
+    background: red;
+}
+
+.status-open {
+    border: 3px solid lightgreen;
+    background: lightgoldenrodyellow;
 }
 
 

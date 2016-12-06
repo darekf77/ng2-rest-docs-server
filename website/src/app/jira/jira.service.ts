@@ -18,10 +18,10 @@ export class JiraService {
         if (jiraUrl.search('https://') !== -1) jiraUrl = jiraUrl.replace('https://', '');
         let path = encodeURIComponent(`/rest/api/latest/issue/${key}?fields=status`);
         let url = encodeURIComponent(`${jiraUrl}`);
-        this.http.get(`api/cross/get/${url}/${path}`, {
+        return this.http.get(`api/cross/get/${url}/${path}`, {
             headers: this.headers
-        }).map(d => d.json()).subscribe((res) => this._getStatus.next(res), err => this._getStatus.error(err));
-        return this._getStatus.asObservable();
+        }).map(d => d.json());
+        // return this._getStatus.asObservable();
     }
 
 

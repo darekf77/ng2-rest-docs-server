@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, ContentChild, OnChanges } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 
 import { TranslatePipe } from 'ng2-translate/ng2-translate';
 import { DocGroup, DocModel } from './models';
@@ -49,7 +49,7 @@ export class StartPageComponent implements OnInit, OnDestroy {
     }
 
     checkModal() {
-        
+
         if (this.selected && this.selected.length == 0) {
             this.modalContracts.hide();
         }
@@ -70,10 +70,10 @@ export class StartPageComponent implements OnInit, OnDestroy {
     }
 
     login(username: string, passsword: string) {
-        console.log(arguments);
+        // console.log(arguments);
         let token = btoa(`${username}:${passsword}`);
-        console.log('token ', token);
-        console.log('token jria', this.configJira.token);
+        // console.log('token ', token);
+        // console.log('token jria', this.configJira.token);
         if (token.trim() === this.configJira.token.trim()) {
             this.modalLogin.isError = false;
             setTimeout(() => {
@@ -119,10 +119,12 @@ export class StartPageComponent implements OnInit, OnDestroy {
         let f = this.configJira.models.filter(m => {
             return (m.usecase === d.usecase &&
                 m.method === d.method &&
-                m.urlFull === d.url &&
-                m.group == d.group
+                m.urlFull === d.urlFull &&
+                m.group === d.group &&
+                m.contract === d.contract
             );
         });
+        console.log('Bind results', f)
         if (f.length > 0) {
             let first = f[0];
             d.jiraKey = first.jiraKey;
@@ -145,7 +147,7 @@ export class StartPageComponent implements OnInit, OnDestroy {
                             }
                         })
                     })
-                    this.prepreTasks();
+                    this.prepareTasks();
                 }
             }
         });
@@ -163,25 +165,60 @@ export class StartPageComponent implements OnInit, OnDestroy {
         return `status-${n}`;
     }
 
-    prepareDoc(d: DocModel) {
+
+    @Helpers.debounceable(1000, undefined)
+    saveConfig() {
+        // console.log('saving jira config ');
+        let newConfig = this.configJira;
+        newConfig.models = [];
+        function pushTo(f: DocModel) {
+            let tmp: DocModel = JSON.parse(JSON.stringify(f));
+            tmp.bodySend = undefined;
+            tmp.bodyRecieve = undefined;
+            // console.log('push new data', tmp)
+            newConfig.models.push(tmp)
+        }
+        this.groups.forEach(g => {
+            g.files.forEach(f => {
+                if (f.jiraKey && f.jiraKey.trim() !== '') {
+                    // console.log('f.jiraKey', f.jiraKey)
+                    pushTo(f);
+                }
+                if (f.examples && f.examples.length > 0) {
+                    f.examples.forEach(ex => {
+                        // console.log('ex.jiraKey', ex.jiraKey)
+                        if (ex.jiraKey && ex.jiraKey.trim() !== '') pushTo(ex);
+                    })
+                }
+            });
+        });
+        this.handlers.push(this.config.model.getSaveJiraConfig(newConfig).subscribe(() => {
+            console.log('saving jira config done');
+        }));
+
+    }
+
+    prepareDoc(d: DocModel, wait: boolean = false) {
+        if (wait) { // quick fix for keyup and ngmodel
+            setTimeout(() => {
+                this.prepareDoc(d);
+            })
+            return;
+        }
         console.log(`preparing statuses for key: ${d.jiraKey}`)
         if (d.jiraKey && d.jiraKey.trim() !== '') {
             console.log('send request');
-            this.getStatus(d.jiraKey).subscribe(s => {
+            this.saveConfig();
+            this.handlers.push(this.getStatus(d.jiraKey).subscribe(s => {
                 console.log('Data from jira', s);
                 if (s.fields &&
                     s.fields.status &&
                     s.fields.status.name) {
-
                     d.jiraStatus = s.fields.status.name;
-                } else {
-                    d.jiraStatus = '-- Wrong Status --';
+                    console.log('status shoudl changed', d)
                 }
-            });
-        } else {
-            d.jiraStatus = '';
+            }));            
         }
-
         if (d.examples && d.examples.filter(e => e.jiraKey && e.jiraKey.trim() !== '').length > 0) {
             d.examples.forEach(ex => {
                 this.prepareDoc(ex);
@@ -189,7 +226,7 @@ export class StartPageComponent implements OnInit, OnDestroy {
         }
     }
 
-    prepreTasks() {
+    prepareTasks() {
         this.groups.forEach(g => {
             g.files.forEach(f => {
                 this.prepareDoc(f);

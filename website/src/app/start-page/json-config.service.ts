@@ -38,8 +38,8 @@ export class JsonConfigService {
                 return config;
             })
         },
-        getSaveJiraConfig: (docs: DocModel[]) => {
-            return this.http.post('api/config', JSON.stringify(docs), {
+        getSaveJiraConfig: ( config: JiraConfig) => {
+            return this.http.post('api/config/jira', JSON.stringify(config), {
                 headers: this.headers
             }).map(c => c.json());
         }

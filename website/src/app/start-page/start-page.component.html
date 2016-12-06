@@ -206,7 +206,7 @@
                                                 placeholder="Jira Key" 
 
                                                 (click)="$event.stopPropagation()"  
-                                                (keyup.enter)="ex['isEdited']=false;prepareDoc(ex)" 
+                                                (keyup.enter)="ex['isEdited']=false;prepareDoc(ex, true)" 
                                                 (blur)="ex['isEdited']=false"
 
                                                 *ngIf="admin && !(ex.jiraStatus && ex.jiraStatus!=='' && ex.jiraStatus!=='-') || ex.isEdited"
@@ -217,9 +217,9 @@
                                                 <!--<span *ngIf="!ex.isEdited && ex.jiraStatus && ex.jiraStatus!=='' && ex.jiraStatus!=='-'" 
                                                     (click)="ex['isEdited']=true"
                                                 > Status: </span>-->
-                                                <span   class="{{getClassName(ex.jiraStatus)}}" 
+                                                <span   class="{{getClassName(ex.jiraStatus)}} status-task" 
                                                 *ngIf="!admin && !ex.isEdited && ex.jiraStatus && ex.jiraStatus!=='' && ex.jiraStatus!=='-'" > {{ex.jiraStatus}} </span>
-                                                <span   class="{{getClassName(ex.jiraStatus)}}" (click)="ex['isEdited']=true" 
+                                                <span   class="{{getClassName(ex.jiraStatus)}} status-task" (click)="ex['isEdited']=true" 
                                                 *ngIf="admin && !ex.isEdited && ex.jiraStatus && ex.jiraStatus!=='' && ex.jiraStatus!=='-'" > {{ex.jiraStatus}} </span>
                                             </div>
 

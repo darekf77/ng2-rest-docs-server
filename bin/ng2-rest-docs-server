@@ -47,9 +47,8 @@ try {
 }
 
 var urlSplit = jira.split('@');
-var jiraUrl = urlSplit.length > 1 ? urlSplit[1] : undefined;
-var authSplit = (urlSplit.length > 1) ? urlSplit[1] : undefined;
+var jiraUrl = urlSplit.length > 1 ? urlSplit[urlSplit.length - 1] : undefined;
+var authSplit = (urlSplit.length > 1) ? jira.replace('@' + urlSplit[urlSplit.length - 1], '') : undefined;
 var jiraAuth = (authSplit !== undefined) ? authSplit.split(':') : undefined;
 jiraAuth = (jiraAuth && jiraAuth.length > 1) ? ({ username: jiraAuth[0], password: jiraAuth[1] }) : {};
-
 run(port, baseURL, clean, jiraUrl, jiraAuth);
