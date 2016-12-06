@@ -1,14 +1,14 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, ContentChild, OnChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { TranslatePipe } from 'ng2-translate/ng2-translate';
 import { DocGroup, DocModel } from './models';
-import { TAB_DIRECTIVES, TabDirective } from 'ng2-bootstrap/ng2-bootstrap';
+import { TAB_DIRECTIVES, TabDirective, MODAL_DIRECTIVES, ModalDirective } from 'ng2-bootstrap/ng2-bootstrap';
+import { ComponentsHelper } from 'ng2-bootstrap/components/utils/components-helper.service';
 
 import { HighlightCodeDirective } from './highlight.directive';
 import { SearchPipe } from './search.pipe';
 import { JsonConfigService } from './json-config.service';
-import { debounceable } from './debounce';
 import { Helpers } from './helpers';
 import { JiraService, JiraAuth, JiraTask } from '../jira';
 import { JiraConfig } from './jira-config';
@@ -18,13 +18,16 @@ import { JiraConfig } from './jira-config';
     template: require('./start-page.component.html'),
     styles: [require('./start-page.component.scss')],
     pipes: [TranslatePipe, SearchPipe],
-    providers: [JsonConfigService, JiraService],
-    directives: [HighlightCodeDirective, TAB_DIRECTIVES, TabDirective],
+    providers: [JsonConfigService, JiraService, ComponentsHelper],
+    directives: [HighlightCodeDirective, TAB_DIRECTIVES, TabDirective, ModalDirective],
     encapsulation: ViewEncapsulation.None
 })
 export class StartPageComponent implements OnInit, OnDestroy {
     constructor(private config: JsonConfigService, private jira: JiraService) { }
 
+    @ViewChild('lgModal') modalLogin: any;
+    @ViewChild('lgModal2') modalContracts: any;
+    admin: boolean = false;
     search_model: string = '';
     phrase: string = '';
     configJira: JiraConfig;
@@ -32,6 +35,27 @@ export class StartPageComponent implements OnInit, OnDestroy {
     activeFile: DocModel;
     groups: DocGroup[] = [];
     handlers: Subscription[] = [];
+    selectedInModal: DocModel;
+    selectInModal(ex) {
+        if (ex === this.selectedInModal) {
+            this.selectedInModal = undefined;
+            return;
+        }
+        console.log('ex', ex)
+        this.selectedInModal = undefined;
+        setTimeout(() => {
+            this.selectedInModal = ex;
+        });
+    }
+
+    checkModal() {
+        
+        if (this.selected && this.selected.length == 0) {
+            this.modalContracts.hide();
+        }
+    }
+
+
     ngOnInit() {
 
         this.handlers.push(this.config.model.getGroupFilesList().subscribe((names: string[]) => {
@@ -43,6 +67,41 @@ export class StartPageComponent implements OnInit, OnDestroy {
             console.log('msg', msg);
             this.msg = msg;
         }))
+    }
+
+    login(username: string, passsword: string) {
+        console.log(arguments);
+        let token = btoa(`${username}:${passsword}`);
+        console.log('token ', token);
+        console.log('token jria', this.configJira.token);
+        if (token.trim() === this.configJira.token.trim()) {
+            this.modalLogin.isError = false;
+            setTimeout(() => {
+                this.admin = true;
+                this.modalLogin.hide();
+            }, 0)
+
+        }
+        else {
+            this.admin = false;
+            this.modalLogin.isError = true;
+        }
+    }
+
+    private _logoutClear(f: DocModel) {
+        f['isOpen'] = false;
+        f['isEdited'] = false;
+        f['isSelected'] = false;
+    }
+
+    logout() {
+        this.admin = false;
+        this.groups.forEach(g => {
+            g.files.forEach(f => {
+                this._logoutClear(f);
+                if (f.examples && f.examples.length > 0) f.examples.forEach(ex => this._logoutClear(ex));
+            })
+        })
     }
 
     getGroups(names: string[]) {
@@ -99,6 +158,10 @@ export class StartPageComponent implements OnInit, OnDestroy {
         // 'http://jira.eniro.com', 'ZGFmaTUxOkphYmxvbmthMTc='
     }
 
+    getClassName(statusName: string) {
+        let n = statusName.trim().toLowerCase().replace(/\s/g, '-');
+        return `status-${n}`;
+    }
 
     prepareDoc(d: DocModel) {
         console.log(`preparing statuses for key: ${d.jiraKey}`)
@@ -108,10 +171,9 @@ export class StartPageComponent implements OnInit, OnDestroy {
                 console.log('Data from jira', s);
                 if (s.fields &&
                     s.fields.status &&
-                    s.fields.status.statusCategory &&
-                    s.fields.status.statusCategory.name) {
+                    s.fields.status.name) {
 
-                    d.jiraStatus = s.fields.status.statusCategory.name;
+                    d.jiraStatus = s.fields.status.name;
                 } else {
                     d.jiraStatus = '-- Wrong Status --';
                 }
@@ -257,7 +319,7 @@ export class StartPageComponent implements OnInit, OnDestroy {
     }
 
 
-    @debounceable(100, undefined)
+    @Helpers.debounceable(100, undefined)
     search() {
         console.log('search')
         this.phrase = this.search_model;

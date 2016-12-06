@@ -19,7 +19,7 @@ org.springframework.cloud.contract.spec.Contract.make {
         body(
 		
 		company_name: $(
-                	consumer('Eniro'),
+                	consumer('Company'),
                 	producer(regex('.+'))
             	) ,
 		nip: $(

@@ -1,7 +1,7 @@
 /*
  * Angular 2 decorators and services
  */
-import { Component, ViewEncapsulation, Inject } from '@angular/core';
+import { Component, ViewEncapsulation, ViewContainerRef, Inject } from '@angular/core';
 
 
 import { HighlightCodeDirective } from './start-page/highlight.directive';
@@ -46,13 +46,17 @@ require('!script-loader!assets/lib/groovy.js');
 export class App {
   angularclassLogo = ''; //assets/img/angularclass-avatar.png';
   loading = false;
-  name = 'Eniro CRM';
+  name = 'Company CRM';
   url = 'https://github.com/darekf77/ng2-rest-docs-server';
+
+  private viewContainerRef: ViewContainerRef;
 
   constructor(
     private translate: TranslateService,
-    public appState: AppState
+    public appState: AppState,
+    viewContainerRef:ViewContainerRef
   ) {
+     this.viewContainerRef = viewContainerRef;
     // Log.setProductionMode();
     Resource.map(ENDPOINTS.API.toString(), 'http://localhost:3002/api');
     let userLang = navigator.language.split('-')[0]; // use navigator lang if available

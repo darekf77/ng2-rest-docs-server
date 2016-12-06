@@ -12,6 +12,8 @@ code {
     word-break: break-all;
 }
 
+
+
 #title {
     text-align: center;
 }
@@ -55,11 +57,19 @@ th {
     text-align: right;
 }
 
+.list-group {
+    .active {
+        .http-method {
+             color: black;
+        }
+    }
+}
+
 .http-method {
     font-weight: bold;
     border: 1px solid black;
     padding: 3px;
-    font-size: 80%;    
+    font-size: 85%;
 }
 
 .http-method-GET {
@@ -124,6 +134,13 @@ th {
     }
 }
 
+#preview-contact-modal {
+    height: 100%;
+    max-height: 200px;
+    overflow: scroll;
+    border: 0px;
+    margin: 0px;
+}
 
 #download {
     font-size: 60%;
@@ -144,3 +161,21 @@ th {
         border: none;
     }
 }
+
+.status-task {
+    border-radius: 5px;
+}
+
+.status-in-progress {
+    @extend .status-task;
+    border: 3px solid lightgray;
+    background: lightgray;    
+}
+
+.status-to-do {
+    @extend .status-task;
+    border: 3px solid black;
+    background: linen;    
+}
+
+
