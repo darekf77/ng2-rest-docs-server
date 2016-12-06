@@ -142,7 +142,7 @@ export function prepareSimpleTypes(data: Object) {
         try {
             data = JSON.parse(data);
         } catch (error) {
-            console.log('canno prepareSimpleTypes ');
+            console.log('canno prepareSimpleTypes ', JSON.stringify(error));
             return;
         }
     }

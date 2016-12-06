@@ -152,7 +152,7 @@
                 </td>
             </tr>
         </tbody>
-        <tbody *ngFor="let group of groups | searchcontracts:phrase" id="{{group.name}}">
+        <tbody *ngFor="let group of groups | searchcontracts:phrase" id="{{getClassName(group.name)}}">
             <tr> <strong>  {{group.name}} </strong>
 
                 <div class="checkbox-in-group" [ngClass]="{'opacityHalf': isGroupPartialSelected(group)}">
@@ -219,7 +219,7 @@
                                                 > Status: </span>-->
                                                 <span   class="{{getClassName(ex.jiraStatus)}} status-task" 
                                                 *ngIf="!admin && !ex.isEdited && ex.jiraStatus && ex.jiraStatus!=='' && ex.jiraStatus!=='-'" > {{ex.jiraStatus}} </span>
-                                                <span   class="{{getClassName(ex.jiraStatus)}} status-task" (click)="ex['isEdited']=true" 
+                                                <span   class="{{getClassName(ex.jiraStatus)}} status-task" (click)="$event.stopPropagation();ex['isEdited']=true" 
                                                 *ngIf="admin && !ex.isEdited && ex.jiraStatus && ex.jiraStatus!=='' && ex.jiraStatus!=='-'" > {{ex.jiraStatus}} </span>
                                             </div>
 
@@ -253,7 +253,7 @@
 
                                             <button type="button" *ngIf="ex.isOpen && ex.contract" (click)="copy(ex)" class="btn btn-default copy-button">Copy to clipboard</button>
 
-                                            <pre *ngIf="ex.isOpen && ex.contract">
+                                            <pre *ngIf="ex.isOpen && ex.contract" class="contract-in-tab" >
                                                 <code highlight class="groovy"> {{removeReturn(ex.contract)}} </code>
                                             </pre>
 
