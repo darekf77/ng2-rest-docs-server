@@ -75,4 +75,4 @@ npm-debug.log*
 /features/*.feature
 /features/files/*.feature
 /features/files/*.json
-
+/tmp-*
