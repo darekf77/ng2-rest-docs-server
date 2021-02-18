@@ -1,5 +1,5 @@
-import http = require("http");
-import https = require("https");
+import http = require('http');
+import https = require('https');
 
 
 export function getJSON(options, onResult) {

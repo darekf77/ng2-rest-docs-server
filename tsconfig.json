@@ -1,20 +1,9 @@
 {
+  "extends": "./tsconfig.isomorphic.json",
   "compilerOptions": {
-    "target": "ES5",
-    "module": "commonjs",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "sourceMap": true,
-    "noEmitHelpers": true,
-    "outDir": "js"
+    "rootDir": "./src"
   },
-  "compileOnSave": false,
-  "buildOnSave": false,
-  "exclude": [
-    "node_modules",
-    "website",
-    "out",
-    "gui",
-    "apps"
+  "include": [
+    "src/**/*"
   ]
 }
