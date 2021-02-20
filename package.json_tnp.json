@@ -1,7 +1,7 @@
 {
+  "resources": [],
   "version": "v2",
   "type": "isomorphic-lib",
-  "resources": [],
   "overrided": {
     "linkedFolders": [],
     "ignoreDepsPattern": [
@@ -17,5 +17,19 @@
     "obscure": false,
     "ugly": false
   },
-  "private": true
+  "private": true,
+  "scripts": {
+    "test": "mocha --require ts-node/register src/**/*.spec.ts",
+    "test:watch": "mocha --compilers ts-node/register src/**/*.spec.ts --watch"
+  },
+  "description": "Generate docs for angular 2 app with ng2-rest lib in easy way",
+  "license": "ISC",
+  "author": "Dariusz Filipiak",
+  "homepage": "https://github.com/darekf77/ng2-rest-docs-server#readme",
+  "main": "karma.conf.js",
+  "keywords": [
+    "ng2-rest",
+    "docs",
+    "documentation"
+  ]
 }
