@@ -286,7 +286,7 @@
     "documentation"
   ],
   "author": "Dariusz Filipiak",
-  "license": "MIT",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/darekf77/ng2-rest-docs-server/issues"
   },
