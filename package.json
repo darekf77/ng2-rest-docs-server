@@ -32,7 +32,8 @@
       "ng2-rest",
       "docs",
       "documentation"
-    ]
+    ],
+    "workerPlugins": {}
   },
   "name": "ng2-rest-docs-server",
   "version": "2.0.4",
