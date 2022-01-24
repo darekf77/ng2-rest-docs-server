@@ -232,5 +232,8 @@
   "engines": {
     "node": ">= 4.2.1",
     "npm": ">= 3"
+  },
+  "recreatedFrom": {
+    "tnp.json": true
   }
 }
