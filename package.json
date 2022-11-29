@@ -34,7 +34,9 @@
       "documentation"
     ],
     "workerPlugins": {},
-    "linkedRepos": []
+    "linkedRepos": [],
+    "smartContainerTarget": "",
+    "smartContainerBuildTarget": ""
   },
   "name": "ng2-rest-docs-server",
   "version": "2.0.4",
