@@ -20,6 +20,7 @@
       "ugly": false,
       "cliBuildNoDts": false,
       "cliBuildObscure": false,
+      "cliBuildUglify": false,
       "cliBuildIncludeNodeModules": false
     },
     "version": "v2",
@@ -58,5 +59,6 @@
     "documentation"
   ],
   "name": "ng2-rest-docs-server",
-  "version": "0.0.0"
+  "version": "0.0.0",
+  "main": "karma.conf.js"
 }
