@@ -235,6 +235,6 @@
     "documentation"
   ],
   "name": "ng2-rest-docs-server",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "karma.conf.js"
 }
